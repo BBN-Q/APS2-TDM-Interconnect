@@ -19,14 +19,17 @@ entity APS2_interconnect_top is
 		tx_p      : out std_logic;
 		tx_n      : out std_logic;
 
-		--user data interface
-		rx_tdata  : std_logic_vector(7 downto 0);
-		rx_tvalid : std_logic;
-		rx_last   : std_logic;
+		--status
+		link_established : out std_logic;
 
-		tx_tdata  : std_logic_vector(7 downto 0);
-		tx_tvalid : std_logic;
-		tx_last   : std_logic
+		--user data interface
+		rx_tdata  : out std_logic_vector(7 downto 0);
+		rx_tvalid : out std_logic;
+		rx_last   : out std_logic;
+
+		tx_tdata  : in std_logic_vector(7 downto 0);
+		tx_tvalid : in std_logic;
+		tx_last   : in std_logic
 
 	);
 end entity;
@@ -54,6 +57,8 @@ signal sgmii_clk_f : std_logic := '0';
 signal sgmii_clk_en : std_logic := '0';
 
 begin
+
+link_established <= status_vector(0);
 
 --generate all clocks from the reference 125MHz
 clocks_gen_inst : entity work.gig_ethernet_pcs_pma_0_sgmii_phy_clk_gen
@@ -85,11 +90,11 @@ pcs_pma_core_inst : entity work.sata_interconnect_pcs_pma
 		clk625               => clk625,
 		clk208               => clk208,
 		clk104               => clk104,
-		gmii_txd             => gmii_txd,
-		gmii_tx_en           => gmii_tx_en,
+		gmii_txd             => tx_tdata,
+		gmii_tx_en           => tx_tvalid,
 		gmii_tx_er           => gmii_tx_er,
-		gmii_rxd             => gmii_rxd,
-		gmii_rx_dv           => gmii_rx_dv,
+		gmii_rxd             => rx_tdata,
+		gmii_rx_dv           => rx_tvalid,
 		gmii_rx_er           => gmii_rx_er,
 		gmii_isolate         => open,
 		configuration_vector => PCS_PMA_CONFIGURATION_VECTOR,

@@ -16,17 +16,28 @@ signal twisted_pair_a_n : std_logic := '0';
 signal twisted_pair_b_p : std_logic := '0';
 signal twisted_pair_b_n : std_logic := '0';
 
-signal rx_tdata : std_logic_vector(7 downto 0) := (others => '0');
-signal rx_tvalid : std_logic := '0';
-signal rx_last : std_logic := '0';
-signal tx_tdata : std_logic_vector(7 downto 0) := (others => '0');
-signal tx_tvalid : std_logic := '0';
-signal tx_last : std_logic := '0';
+signal rx_tdata_aps2 : std_logic_vector(7 downto 0) := (others => '0');
+signal rx_tvalid_aps2 : std_logic := '0';
+signal rx_last_aps2 : std_logic := '0';
+signal tx_tdata_aps2 : std_logic_vector(7 downto 0) := (others => '0');
+signal tx_tvalid_aps2 : std_logic := '0';
+signal tx_last_aps2 : std_logic := '0';
+
+signal rx_tdata_tdm : std_logic_vector(7 downto 0) := (others => '0');
+signal rx_tvalid_tdm : std_logic := '0';
+signal rx_last_tdm : std_logic := '0';
+signal tx_tdata_tdm : std_logic_vector(7 downto 0) := (others => '0');
+signal tx_tvalid_tdm : std_logic := '0';
+signal tx_last_tdm : std_logic := '0';
+
 
 signal clk125_aps2 : std_logic := '0';
 signal clk125_tdm : std_logic := '0';
 
 constant clk_period : time := 8 ns;
+
+signal link_established_aps2 : std_logic;
+signal link_established_tdm : std_logic;
 
 begin
 
@@ -37,32 +48,40 @@ begin
 		port map (
 		rst => rst,
 		clk125_ref => clk125_aps2,
+
 		rx_p => twisted_pair_a_p,
 		rx_n => twisted_pair_a_n,
 		tx_p => twisted_pair_b_p,
 		tx_n => twisted_pair_b_n,
-		rx_tdata => rx_tdata,
-		rx_tvalid => rx_tvalid,
-		rx_last => rx_last,
-		tx_tdata => tx_tdata,
-		tx_tvalid => tx_tvalid,
-		tx_last => tx_last
+
+		link_established => link_established_aps2,
+
+		rx_tdata => rx_tdata_aps2,
+		rx_tvalid => rx_tvalid_aps2,
+		rx_last => rx_last_aps2,
+		tx_tdata => tx_tdata_aps2,
+		tx_tvalid => tx_tvalid_aps2,
+		tx_last => tx_last_aps2
 	);
 
 	tdm_uut : entity work.APS2_interconnect_top
 		port map (
 		rst => rst,
 		clk125_ref => clk125_tdm,
+
 		rx_p => twisted_pair_b_p,
 		rx_n => twisted_pair_b_n,
 		tx_p => twisted_pair_a_p,
 		tx_n => twisted_pair_a_n,
-		rx_tdata => rx_tdata,
-		rx_tvalid => rx_tvalid,
-		rx_last => rx_last,
-		tx_tdata => tx_tdata,
-		tx_tvalid => tx_tvalid,
-		tx_last => tx_last
+
+		link_established => link_established_tdm,
+
+		rx_tdata => rx_tdata_tdm,
+		rx_tvalid => rx_tvalid_tdm,
+		rx_last => rx_last_tdm,
+		tx_tdata => tx_tdata_tdm,
+		tx_tvalid => tx_tvalid_tdm,
+		tx_last => tx_last_tdm
 	);
 
 
@@ -73,7 +92,19 @@ begin
 		rst <= '1';
 		wait for 1 us;
 		rst <= '0';
-		
+
+		wait until link_established_aps2 = '1' and link_established_tdm = '1';
+
+
+		for ct in 1 to 4 loop
+			wait until rising_edge(clk125_tdm);
+			tx_tdata_tdm <= std_logic_vector(to_unsigned(ct, 8));
+			tx_tvalid_tdm <= '1';
+		end loop;
+
+		wait until rising_edge(clk125_tdm);
+		tx_tvalid_tdm <= '0';
+
 		wait;
 
 	end process;
