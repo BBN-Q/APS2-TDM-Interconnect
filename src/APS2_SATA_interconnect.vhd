@@ -1,5 +1,5 @@
 -- Wrap the SATA interconnect from the APS2 side
--- One the APS2 wrapper we generate all necessary with an MMCM
+-- On the APS2 wrapper we generate all necessary clocks with an MMCM
 --
 -- Original author: Colm Ryan
 -- Copyright 2016 Raytheon BBN Technologies
