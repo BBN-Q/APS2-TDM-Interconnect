@@ -31,8 +31,8 @@ signal tx_tvalid_tdm : std_logic := '0';
 signal tx_last_tdm : std_logic := '0';
 
 
-signal clk125_aps2 : std_logic := '0';
-signal clk125_tdm : std_logic := '0';
+signal clk125_aps2, clk125_tdm : std_logic := '0';
+signal clk125_ref_aps2, clk125_ref_tdm : std_logic := '0';
 
 constant clk_period : time := 8 ns;
 
@@ -41,13 +41,13 @@ signal link_established_tdm : std_logic;
 
 begin
 
-	clk125_aps2 <= not clk125_aps2 after clk_period / 2;
-	clk125_tdm <= not clk125_tdm after clk_period / 2;
+	clk125_ref_aps2 <= not clk125_ref_aps2 after clk_period / 2;
+	clk125_ref_tdm <= not clk125_ref_tdm after clk_period / 2;
 
 	aps2_uut : entity work.APS2_interconnect_top
 		port map (
 		rst => rst,
-		clk125_ref => clk125_aps2,
+		clk125_ref => clk125_ref_aps2,
 
 		rx_p => twisted_pair_a_p,
 		rx_n => twisted_pair_a_n,
@@ -56,6 +56,7 @@ begin
 
 		link_established => link_established_aps2,
 
+		clk125  => clk125_aps,
 		rx_tdata => rx_tdata_aps2,
 		rx_tvalid => rx_tvalid_aps2,
 		rx_last => rx_last_aps2,
@@ -67,8 +68,9 @@ begin
 	tdm_uut : entity work.APS2_interconnect_top
 		port map (
 		rst => rst,
-		clk125_ref => clk125_tdm,
+		clk125_ref => clk125_ref_tdm,
 
+		clk125  => clk125_aps,
 		rx_p => twisted_pair_b_p,
 		rx_n => twisted_pair_b_n,
 		tx_p => twisted_pair_a_p,

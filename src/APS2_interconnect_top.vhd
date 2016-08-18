@@ -23,14 +23,14 @@ entity APS2_interconnect_top is
 		link_established : out std_logic;
 
 		--user data interface
-		rx_tdata  : out std_logic_vector(7 downto 0);
-		rx_tvalid : out std_logic;
-		rx_last   : out std_logic;
+		clk125_user : out std_logic;
+		rx_tdata    : out std_logic_vector(7 downto 0);
+		rx_tvalid   : out std_logic;
+		rx_last     : out std_logic;
 
-		tx_tdata  : in std_logic_vector(7 downto 0);
-		tx_tvalid : in std_logic;
-		tx_last   : in std_logic
-
+		tx_tdata    : in std_logic_vector(7 downto 0);
+		tx_tvalid   : in std_logic;
+		tx_last     : in std_logic
 	);
 end entity;
 
@@ -59,6 +59,7 @@ signal sgmii_clk_en : std_logic := '0';
 begin
 
 link_established <= status_vector(0);
+clk125_user <= clk125;
 
 --generate all clocks from the reference 125MHz
 clocks_gen_inst : entity work.gig_ethernet_pcs_pma_0_sgmii_phy_clk_gen
