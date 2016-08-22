@@ -8,7 +8,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity APS2_interconnect_top is
+entity APS2_SATA_interconnect is
 	port (
 		rst        : in std_logic;
 		clk125_ref : in std_logic;
@@ -26,15 +26,15 @@ entity APS2_interconnect_top is
 		clk125_user : out std_logic;
 		rx_tdata    : out std_logic_vector(7 downto 0);
 		rx_tvalid   : out std_logic;
-		rx_last     : out std_logic;
+		rx_tlast    : out std_logic;
 
 		tx_tdata    : in std_logic_vector(7 downto 0);
 		tx_tvalid   : in std_logic;
-		tx_last     : in std_logic
+		tx_tlast    : in std_logic
 	);
 end entity;
 
-architecture arch of APS2_interconnect_top is
+architecture arch of APS2_SATA_interconnect is
 
 signal clk625, clk208, clk104, clk125 : std_logic := '0';
 
