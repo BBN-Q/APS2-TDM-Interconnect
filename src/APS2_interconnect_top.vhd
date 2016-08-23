@@ -126,14 +126,13 @@ begin
 	rst_pcs_pma <= not cfg_clk_locked;
 
 	--synchronize resets to appropriate clock domains
-	--See https://github.com/noasic/noasic/blob/master/components/reset_synchronizer.vhd
 	reset_synchronizer_clk_125Mhz_mac : entity work.synchronizer
-	generic map(G_INIT_VALUE => '1', G_NUM_GUARD_FFS => 2)
-	port map(reset => rst_pcs_pma, clk => clk_125MHz_mac, i_data => '0', o_data => rst_sync_clk125MHz_mac);
+	generic map(RESET_VALUE => '1')
+	port map(rst => rst_pcs_pma, clk => clk_125MHz_mac, data_in => '0', data_out => rst_sync_clk125MHz_mac);
 
 	reset_synchronizer_clk_125Mhz_data : entity work.synchronizer
-	generic map(G_INIT_VALUE => '1', G_NUM_GUARD_FFS => 2)
-	port map(reset => rst_pcs_pma, clk => clk_125MHz_data, i_data => '0', o_data => rst_sync_clk125MHz_data);
+	generic map(RESET_VALUE => '1')
+	port map(rst => rst_pcs_pma, clk => clk_125MHz_data, data_in => '0', data_out => rst_sync_clk125MHz_data);
 
 	rst_eth_mac_rx_tx <= rst_sync_clk125MHz_mac;
 	rst_eth_mac_logic <= rst_sync_clk125MHz_data;
