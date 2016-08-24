@@ -67,5 +67,3 @@ set_property IOSTANDARD LVDS_25 [get_ports {sata_clk_p[*]}]
 set_property IOSTANDARD LVDS_25 [get_ports {sata_data_p[*]}]
 
 set_property DIFF_TERM true [get_ports {sata_clk_p[*]}]
-set_property DIFF_TERM TRUE [get_ports {sata_clk_n[0]}]
-set_property DIFF_TERM true [get_ports {sata_data_p[*]}]
