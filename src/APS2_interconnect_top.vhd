@@ -74,6 +74,14 @@ architecture arch of APS2_interconnect_top is
 
 	signal link_established_sata : std_logic;
 
+	attribute mark_debug : string;
+	attribute mark_debug of tcp_rx_tdata : signal is "true";
+	attribute mark_debug of tcp_rx_tvalid : signal is "true";
+	attribute mark_debug of tcp_rx_tready : signal is "true";
+	attribute mark_debug of tcp_tx_tdata : signal is "true";
+	attribute mark_debug of tcp_tx_tvalid : signal is "true";
+	attribute mark_debug of tcp_tx_tready : signal is "true";
+
 begin
 
 	ref_clk_mmcm_inst : entity work.ref_clk_mmcm
@@ -137,6 +145,8 @@ begin
 	rst_eth_mac_rx_tx <= rst_sync_clk125MHz_mac;
 	rst_eth_mac_logic <= rst_sync_clk125MHz_data;
 	rst_comblock <= rst_sync_clk125MHz_data;
+
+	rst_sata <= not ref_clk_locked;
 
 	dbg(7 downto 6) <= "01" when pcs_pma_status_vector(0) = '1' else "10";
 	dbg(5 downto 4) <= "01" when link_established_sata = '1' else "10";
@@ -226,7 +236,11 @@ begin
 		IB => sata_clk_n(0)
 	);
 
-	sata_data_p(0) <= '0';
-	sata_data_n(0) <= '0';
+	sata_data_0_buf: OBUFDS
+	port map (
+		I	=> '0',
+		O	=> sata_data_p(0),
+		OB => sata_data_n(0)
+	);
 
 end architecture;
