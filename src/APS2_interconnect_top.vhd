@@ -68,7 +68,8 @@ architecture arch of APS2_interconnect_top is
 	signal mgt_clk_locked : std_logic;
 
 	signal tcp_rx_tdata : std_logic_vector(7 downto 0) := (others => '0');
-	signal tcp_rx_tvalid, tcp_rx_tready : std_logic := '0';
+	signal tcp_rx_tvalid : std_logic := '0';
+	signal tcp_rx_tready : std_logic := '1';
 	signal tcp_tx_tdata : std_logic_vector(7 downto 0) := (others => '0');
 	signal tcp_tx_tvalid, tcp_tx_tready : std_logic := '0';
 
@@ -146,7 +147,7 @@ begin
 	rst_eth_mac_logic <= rst_sync_clk125MHz_data;
 	rst_comblock <= rst_sync_clk125MHz_data;
 
-	rst_sata <= not ref_clk_locked;
+	rst_sata <= not (ref_clk_locked and cfg_clk_locked);
 
 	dbg(7 downto 6) <= "01" when pcs_pma_status_vector(0) = '1' else "10";
 	dbg(5 downto 4) <= "01" when link_established_sata = '1' else "10";
@@ -211,6 +212,7 @@ begin
 		port map (
 			rst => rst_sata,
 			clk125_ref => clk_125MHz_ref,
+			clk200_ref => clk_200MHz,
 
 			rx_p => sata_clk_p(1),
 			rx_n => sata_clk_n(1),

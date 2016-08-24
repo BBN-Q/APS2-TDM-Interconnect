@@ -65,7 +65,8 @@ architecture arch of TDM_interconnect_top is
 	signal mgt_clk_locked : std_logic;
 
 	signal tcp_rx_tdata : std_logic_vector(7 downto 0) := (others => '0');
-	signal tcp_rx_tvalid, tcp_rx_tready : std_logic := '0';
+	signal tcp_rx_tvalid : std_logic := '0';
+	signal tcp_rx_tready : std_logic := '1';
 	signal tcp_tx_tdata : std_logic_vector(7 downto 0) := (others => '0');
 	signal tcp_tx_tvalid, tcp_tx_tready : std_logic := '0';
 
@@ -121,7 +122,7 @@ begin
 
 	--Wait until cfg_clk_locked so that we have 200MHz reference before deasserting pcs/pma reset
 	rst_pcs_pma <= not cfg_clk_locked;
-	rst_sata <= not ref_clk_locked;
+	rst_sata <= not (ref_clk_locked and cfg_clk_locked);
 
 	--synchronize resets to appropriate clock domains
 	reset_synchronizer_clk_125Mhz_mac : entity work.synchronizer
@@ -199,6 +200,7 @@ begin
 		port map (
 			rst => rst_sata,
 			clk125_ref => clk_125MHz_ref,
+			clk200_ref => clk_200MHz,
 
 			rx_p => TRGDAT_OUTP,
 			rx_n => TRGDAT_OUTN,

@@ -12,6 +12,7 @@ entity APS2_SATA_interconnect is
 	port (
 		rst        : in std_logic;
 		clk125_ref : in std_logic;
+		clk200_ref : in std_logic;
 
 		--SATA tx/rx twisted pairs
 		rx_p      : in std_logic;
@@ -66,17 +67,18 @@ link_established <= status_vector(0);
 clk125_user <= clk125;
 
 --generate all clocks from the reference 125MHz
-clocks_gen_inst : entity work.gig_ethernet_pcs_pma_0_sgmii_phy_clk_gen
+clocks_gen_inst : entity work.SATA_interconnect_clk_gen
 	port map (
-		clk125_ref => clk125_ref,
 		rst        => rst,
+		clk125_ref => clk125_ref,
+		clk200_ref => clk200_ref,
 
-		o_clk625   => clk625,
-		o_clk208   => clk208,
-		o_clk104   => clk104,
-		o_clk125   => clk125,
+		clk625   => clk625,
+		clk208   => clk208,
+		clk104   => clk104,
+		clk125   => clk125,
 
-		o_mmcm_locked =>  mmcm_locked
+		mmcm_locked =>  mmcm_locked
 	);
 
 
