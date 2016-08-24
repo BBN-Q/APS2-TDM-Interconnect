@@ -10,11 +10,11 @@ end;
 
 architecture bench of SATA_interconnect_tb is
 
-signal rst : std_logic := '0';
-signal twisted_pair_a_p : std_logic := '0';
-signal twisted_pair_a_n : std_logic := '0';
-signal twisted_pair_b_p : std_logic := '0';
-signal twisted_pair_b_n : std_logic := '0';
+signal rst_tdm, rst_aps2 : std_logic := '0';
+signal twisted_pair_a_p  : std_logic := '0';
+signal twisted_pair_a_n  : std_logic := '0';
+signal twisted_pair_b_p  : std_logic := '0';
+signal twisted_pair_b_n  : std_logic := '0';
 
 signal rx_tdata_aps2 : std_logic_vector(7 downto 0) := (others => '0');
 signal rx_tvalid_aps2 : std_logic := '0';
@@ -46,7 +46,7 @@ begin
 
 	aps2_uut : entity work.APS2_SATA_interconnect
 		port map (
-		rst => rst,
+		rst => rst_aps2,
 		clk125_ref => clk125_ref_aps2,
 
 		rx_p => twisted_pair_a_p,
@@ -67,7 +67,7 @@ begin
 
 	tdm_uut : entity work.APS2_SATA_interconnect
 		port map (
-		rst => rst,
+		rst => rst_tdm,
 		clk125_ref => clk125_ref_tdm,
 
 		rx_p   => twisted_pair_b_p,
@@ -91,9 +91,12 @@ begin
   stimulus: process
   begin
 
-		rst <= '1';
+		rst_aps2 <= '1';
+		rst_tdm <= '1';
 		wait for 1 us;
-		rst <= '0';
+		rst_tdm <= '0';
+		wait for 10 us;
+		rst_aps2 <= '0';
 
 		wait until link_established_aps2 = '1' and link_established_tdm = '1';
 
