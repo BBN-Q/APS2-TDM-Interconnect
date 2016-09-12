@@ -59,7 +59,6 @@ signal sgmii_clk_en : std_logic := '0';
 
 attribute mark_debug : string;
 attribute mark_debug of status_vector : signal is "true";
-attribute mark_debug of mmcm_locked : signal is "true";
 
 begin
 
