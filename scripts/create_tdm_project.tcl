@@ -1,15 +1,15 @@
 ##################################################################
-# Tcl script to create the APS2-Interconnect HDL Vivado project for implementation on the APS2
+# Tcl script to create the TDM-interconnect HDL Vivado project for implementation on the APS2
 #
 # Usage: at the Tcl console manually set the argv to set the PROJECT_DIR and PROJECT_NAME and
 # then source this file. E.g.
 #
-# set argv [list "/home/cryan/Programming/FPGA" "APS2-Interconnect-impl"] or
-# or  set argv [list "C:/Users/qlab/Documents/Xilinx Projects/" "APS2-Interconnect-impl"]
+# set argv [list "/home/cryan/Programming/FPGA" "TDM-interconnect-impl"] or
+# or  set argv [list "C:/Users/qlab/Documents/Xilinx Projects/" "TDM-interconnect-impl"]
 # source create_impl_project.tcl
 #
 # from Vivado batch mode use the -tclargs to pass argv
-# vivado -mode batch -source create_impl_project.tcl -tclargs "/home/cryan/Programming/FPGA" "APS2-Interconnect-impl"
+# vivado -mode batch -source create_impl_project.tcl -tclargs "/home/cryan/Programming/FPGA" "TDM-interconnect-impl"
 #
 ##################################################################
 
@@ -59,16 +59,16 @@ foreach xci $ip_srcs {
 #Sources
 add_files -norecurse $REPO_PATH/src
 add_files -norecurse $REPO_PATH/deps/VHDL-Components/src/Synchronizer.vhd
-remove_files $REPO_PATH/src/TDM_interconnect_top.vhd
+remove_files $REPO_PATH/src/APS2_interconnect_top.vhd
 
-set_property top APS2_interconnect_top [current_fileset]
+set_property top TDM_interconnect_top [current_fileset]
 update_compile_order -fileset sources_1
 
 # constraints
 add_files -fileset constrs_1 -norecurse $REPO_PATH/deps/VHDL-Components/constraints/synchronizer.tcl
-add_files -fileset constrs_1 -norecurse $REPO_PATH/constraints/pins_aps2.xdc
-add_files -fileset constrs_1 -norecurse $REPO_PATH/constraints/timing_aps2.xdc
-set_property target_constrs_file $REPO_PATH/constraints/timing_aps2.xdc [current_fileset -constrset]
+add_files -fileset constrs_1 -norecurse $REPO_PATH/constraints/pins_tdm.xdc
+add_files -fileset constrs_1 -norecurse $REPO_PATH/constraints/timing_tdm.xdc
+set_property target_constrs_file $REPO_PATH/constraints/timing_tdm.xdc [current_fileset -constrset]
 
 #Enable headerless bit file output
 set_property STEPS.WRITE_BITSTREAM.ARGS.BIN_FILE true [get_runs impl_1]
