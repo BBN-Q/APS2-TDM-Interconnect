@@ -56,13 +56,16 @@ foreach xci $ip_srcs {
   import_ip $xci
 }
 
-#Sources
-add_files -norecurse $REPO_PATH/src
-add_files -norecurse $REPO_PATH/deps/VHDL-Components/src/Synchronizer.vhd
+#Sources for implementation
+add_files -fileset sources_1 -norecurse $REPO_PATH/src
+add_files -fileset sources_1 -norecurse $REPO_PATH/deps/VHDL-Components/src/Synchronizer.vhd
 remove_files $REPO_PATH/src/TDM_interconnect_top.vhd
 
 set_property top APS2_interconnect_top [current_fileset]
 update_compile_order -fileset sources_1
+
+add_files -fileset sim_1 -norecurse $REPO_PATH/test/SATA_interconnect_tb.vhd
+update_compile_order -fileset sim_1
 
 # constraints
 add_files -fileset constrs_1 -norecurse $REPO_PATH/deps/VHDL-Components/constraints/synchronizer.tcl
