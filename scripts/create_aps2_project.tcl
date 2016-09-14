@@ -72,3 +72,13 @@ set_property target_constrs_file $REPO_PATH/constraints/timing_aps2.xdc [current
 
 #Enable headerless bit file output
 set_property STEPS.WRITE_BITSTREAM.ARGS.BIN_FILE true [get_runs impl_1]
+
+# Manage the SATA PCS/PMA IP core ourselves so that we can muck with the HDL
+# first generate HDL
+export_ip_user_files -of_objects [get_files sata_interconnect_pcs_pma.xci] -no_script -force -quiet
+create_ip_run [get_files -of_objects [get_fileset sources_1] sata_interconnect_pcs_pma.xci]
+launch_run -jobs 4 sata_interconnect_pcs_pma_synth_1
+wait_on_run sata_interconnect_pcs_pma_synth_1
+
+# now take control
+set_property IS_MANAGED false [get_files sata_interconnect_pcs_pma.xci]
