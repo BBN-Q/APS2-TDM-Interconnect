@@ -83,9 +83,20 @@ wait_on_run sata_interconnect_pcs_pma_synth_1
 # now take control
 set_property IS_MANAGED false [get_files sata_interconnect_pcs_pma.xci]
 
+# reset so that we don't reuse cached synthesis
+reset_run sata_interconnect_pcs_pma_synth_1
+
 # apply the patches
+
+# on Windows look for Github git
+if { $tcl_platform(platform) == "windows"} {
+  set git_cmd [glob ~/AppData/Local/GitHub/PortableGit*/cmd/git.exe]
+} else {
+  set git_cmd git
+}
+
 set sata_interconnect_pcs_pma_ip_path [file dirname [get_files sata_interconnect_pcs_pma.xci]]
 set cur_dir [pwd]
 cd $sata_interconnect_pcs_pma_ip_path
-exec git apply -p6 --ignore-whitespace $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.output_margins.patch
+exec $git_cmd apply -p6 --ignore-whitespace $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.output_margins.patch
 cd $cur_dir
