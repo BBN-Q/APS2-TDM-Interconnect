@@ -86,6 +86,9 @@ wait_on_run sata_interconnect_pcs_pma_synth_1
 # now take control
 set_property IS_MANAGED false [get_files sata_interconnect_pcs_pma.xci]
 
+# reset so that we don't reuse cached synthesis
+reset_run sata_interconnect_pcs_pma_synth_1
+
 # apply the patches
 
 # on Windows look for Github git
