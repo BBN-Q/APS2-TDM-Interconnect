@@ -74,6 +74,7 @@ architecture arch of APS2_interconnect_top is
 	signal tcp_tx_tvalid, tcp_tx_tready : std_logic := '0';
 
 	signal link_established_sata : std_logic;
+	signal left_margin, right_margin : std_logic_vector(4 downto 0);
 
 	attribute mark_debug : string;
 	attribute mark_debug of tcp_rx_tdata : signal is "true";
@@ -82,6 +83,8 @@ architecture arch of APS2_interconnect_top is
 	attribute mark_debug of tcp_tx_tdata : signal is "true";
 	attribute mark_debug of tcp_tx_tvalid : signal is "true";
 	attribute mark_debug of tcp_tx_tready : signal is "true";
+	attribute mark_debug of left_margin : signal is "true";
+	attribute mark_debug of right_margin : signal is "true";
 
 begin
 
@@ -220,6 +223,8 @@ begin
 			tx_n => sata_data_n(1),
 
 			link_established => link_established_sata,
+			left_margin => left_margin,
+			right_margin => right_margin,
 
 			clk125_user => clk_125MHz_data,
 			rx_tdata    => tcp_tx_tdata,

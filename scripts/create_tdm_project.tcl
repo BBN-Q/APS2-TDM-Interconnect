@@ -82,3 +82,10 @@ wait_on_run sata_interconnect_pcs_pma_synth_1
 
 # now take control
 set_property IS_MANAGED false [get_files sata_interconnect_pcs_pma.xci]
+
+# apply the patches
+set sata_interconnect_pcs_pma_ip_path [file dirname [get_files sata_interconnect_pcs_pma.xci]]
+set cur_dir [pwd]
+cd $sata_interconnect_pcs_pma_ip_path
+exec git apply -p6 --ignore-whitespace $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.output_margins.patch
+cd $cur_dir

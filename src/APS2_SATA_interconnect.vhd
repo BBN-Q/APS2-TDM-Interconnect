@@ -22,6 +22,8 @@ entity APS2_SATA_interconnect is
 
 		--status
 		link_established : out std_logic;
+		left_margin      : out std_logic_vector(4 downto 0);
+		right_margin     : out std_logic_vector(4 downto 0);
 
 		--user data interface
 		clk125_user : out std_logic;
@@ -111,7 +113,9 @@ pcs_pma_core_inst : entity work.sata_interconnect_pcs_pma
 		speed_is_100         => '0',
 		status_vector        => status_vector,
 		reset                => rst,
-		signal_detect        => '1'
+		signal_detect        => '1',
+		left_margin          => left_margin,
+		right_margin         => right_margin
 	);
 
 
