@@ -14,7 +14,7 @@ entity SATA_interconnect_clk_gen is
 	port (
 		rst         : in std_logic;
 		clk125_ref  : in std_logic;
-		clk200_ref  : in std_logic;
+		clk300      : in std_logic;
 
 		clk625      : out std_logic;
 		clk208      : out std_logic;
@@ -55,7 +55,7 @@ sata_interconnect_mmcm_inst : entity work.sata_interconnect_mmcm
 	SIM_DEVICE => "7SERIES" )
 	port map(
 	   RDY       => idelayctrl_rdy,
-	   REFCLK    => clk200_ref,
+	   REFCLK    => clk300,
 	   RST       => not mmcm_locked_int
 	);
 

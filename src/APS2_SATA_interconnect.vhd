@@ -12,7 +12,7 @@ entity APS2_SATA_interconnect is
 	port (
 		rst        : in std_logic;
 		clk125_ref : in std_logic;
-		clk200_ref : in std_logic;
+		clk300     : in std_logic;
 
 		--SATA tx/rx twisted pairs
 		rx_p      : in std_logic;
@@ -72,7 +72,7 @@ clocks_gen_inst : entity work.SATA_interconnect_clk_gen
 	port map (
 		rst        => rst,
 		clk125_ref => clk125_ref,
-		clk200_ref => clk200_ref,
+		clk300     => clk300,
 
 		clk625   => clk625,
 		clk208   => clk208,

@@ -54,7 +54,7 @@ architecture arch of TDM_interconnect_top is
 	constant PCS_PMA_AN_ADV_CONFIG_VECTOR : std_logic_vector(15 downto 0) := x"0020"; --full-duplex see Table 2-55 (pg. 74) of PG047 November 18, 2015
 	constant PCS_PMA_CONFIGURATION_VECTOR : std_logic_vector(4 downto 0) := b"10000"; --auto-negotiation enabled see Table 2-54 (pg. 73) of PG047 November 18, 2015
 
-	signal clk_125MHz_ref, clk_125MHz_data, clk_125MHz_mac, clk_200MHz : std_logic;
+	signal clk_125MHz_ref, clk_125MHz_data, clk_125MHz_mac, clk_200MHz, clk_300MHz : std_logic;
 	signal ref_clk_locked, cfg_clk_locked : std_logic;
 
 	signal rst_comblock, rst_eth_mac_rx_tx, rst_eth_mac_logic, rst_pcs_pma, rst_sata : std_logic := '0';
@@ -90,7 +90,8 @@ begin
 		-- Clock in ports
 		clk_in  => cfg_clk,
 		-- Clock out ports
-		clk_200MHz_ref => clk_200MHz,
+		clk_200MHz => clk_200MHz,
+		clk_300MHz => clk_300MHz,
 		-- Status and control signals
 		resetn     => fpga_resetl,
 		locked     => cfg_clk_locked
@@ -200,7 +201,7 @@ begin
 		port map (
 			rst => rst_sata,
 			clk125_ref => clk_125MHz_ref,
-			clk200_ref => clk_200MHz,
+			clk300     => clk_300MHz,
 
 			rx_p => TRGDAT_OUTP,
 			rx_n => TRGDAT_OUTN,

@@ -101,5 +101,5 @@ if { $tcl_platform(platform) == "windows"} {
 set sata_interconnect_pcs_pma_ip_path [file dirname [get_files sata_interconnect_pcs_pma.xci]]
 set cur_dir [pwd]
 cd $sata_interconnect_pcs_pma_ip_path
-exec $git_cmd apply -p6 --ignore-whitespace $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.output_margins.patch
+exec $git_cmd apply -p6 --ignore-whitespace $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.output_margins.patch $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.300MHz_IDELAYCTRL.patch
 cd $cur_dir
