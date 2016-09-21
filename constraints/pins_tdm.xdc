@@ -54,11 +54,86 @@ set_property SLEW FAST [get_ports {dbg[*]}]
 set_property DRIVE 8 [get_ports -regexp {dbg\[[4-7]\]}]
 set_property PULLUP true [get_ports {dbg[8]}]
 
+# SATA
+# Trigger Outputs
+# TO1 = JT0
+# TO2 = JT2
+# TO3 = JT4
+# TO4 = JT6
+# TO5 = JC01
+# TO6 = JT3
+# TO7 = JT1
+# TO8 = JT5
+# TO9 = JT7
+# TAUX = JT8
 
-#### SATA ####
-set_property PACKAGE_PIN A3 [get_ports TRGCLK_OUTP]
-set_property PACKAGE_PIN C1 [get_ports TRGDAT_OUTP]
+set_property PACKAGE_PIN A3 [get_ports {TRGCLK_OUTP[0]}]
+set_property PACKAGE_PIN C2 [get_ports {TRGCLK_OUTP[1]}]
+set_property PACKAGE_PIN E1 [get_ports {TRGCLK_OUTP[2]}]
+set_property PACKAGE_PIN N3 [get_ports {TRGCLK_OUTP[3]}]
+set_property PACKAGE_PIN R3 [get_ports {TRGCLK_OUTP[4]}]
+set_property PACKAGE_PIN C26 [get_ports {TRGCLK_OUTP[5]}]
+set_property PACKAGE_PIN B20 [get_ports {TRGCLK_OUTP[6]}]
+set_property PACKAGE_PIN H26 [get_ports {TRGCLK_OUTP[7]}]
+set_property PACKAGE_PIN AA24 [get_ports {TRGCLK_OUTP[8]}]
 
-set_property IOSTANDARD LVDS_25 [get_ports TRGCLK_OUTP]
-set_property IOSTANDARD LVDS_25 [get_ports TRGDAT_OUTP]
-set_property DIFF_TERM TRUE [get_ports TRGDAT_OUTP]
+set_property PACKAGE_PIN C1 [get_ports {TRGDAT_OUTP[0]}]
+set_property PACKAGE_PIN D3 [get_ports {TRGDAT_OUTP[1]}]
+set_property PACKAGE_PIN G2 [get_ports {TRGDAT_OUTP[2]}]
+set_property PACKAGE_PIN K1 [get_ports {TRGDAT_OUTP[3]}]
+set_property PACKAGE_PIN R1 [get_ports {TRGDAT_OUTP[4]}]
+set_property PACKAGE_PIN E26 [get_ports {TRGDAT_OUTP[5]}]
+set_property PACKAGE_PIN A23 [get_ports {TRGDAT_OUTP[6]}]
+set_property PACKAGE_PIN J25 [get_ports {TRGDAT_OUTP[7]}]
+set_property PACKAGE_PIN AB24 [get_ports {TRGDAT_OUTP[8]}]
+
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTN[0]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTN[1]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTN[2]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTN[3]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTN[4]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTN[5]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTN[6]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTN[7]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTN[8]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTP[0]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTP[1]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTP[2]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTP[3]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTP[4]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTP[5]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTP[6]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTP[7]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGCLK_OUTP[8]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTN[0]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTN[1]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTN[2]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTN[3]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTN[4]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTN[5]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTN[6]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTN[7]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTN[8]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTP[0]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTP[1]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTP[2]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTP[3]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTP[4]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTP[5]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTP[6]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTP[7]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRGDAT_OUTP[8]}]
+
+# Auxiliary SATA
+set_property PACKAGE_PIN AD25 [get_ports {TRIG_CTRLP[0]}]
+set_property PACKAGE_PIN AE25 [get_ports {TRIG_CTRLP[1]}]
+
+set_property IOSTANDARD LVDS_25 [get_ports {TRIG_CTRLN[0]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRIG_CTRLN[1]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRIG_CTRLP[0]}]
+set_property IOSTANDARD LVDS_25 [get_ports {TRIG_CTRLP[1]}]
+
+set_property DIFF_TERM TRUE [get_ports {TRIG_CTRLN[0]}]
+set_property DIFF_TERM TRUE [get_ports {TRIG_CTRLN[1]}]
+set_property DIFF_TERM TRUE [get_ports {TRIG_CTRLP[0]}]
+set_property DIFF_TERM TRUE [get_ports {TRIG_CTRLP[1]}]
