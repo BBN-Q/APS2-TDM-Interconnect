@@ -58,7 +58,8 @@ architecture arch of TDM_interconnect_top is
 	signal ref_clk_locked, cfg_clk_locked : std_logic;
 
 	-- clocks from the MMCM for the sata interface
-	signal clk625_sata, clk208_sata, clk104_sata, clk125_sata : std_logic := '0';
+	signal clk_625_sata, clk_208_sata, clk_104_sata, clk_125_sata : std_logic;
+	signal mmcm_locked : std_logic := '0';
 
 	signal rst_comblock, rst_eth_mac_rx_tx, rst_eth_mac_logic, rst_pcs_pma, rst_sata : std_logic := '0';
 	signal rst_sync_clk125MHz_mac, rst_sync_clk125MHz_data : std_logic := '0';
@@ -66,8 +67,8 @@ architecture arch of TDM_interconnect_top is
 	type STATUS_ARRAY is array (natural range <>) of std_logic_vector(15 downto 0);
 	signal sata_pcs_pma_status_array : STATUS_ARRAY(8 downto 0);
 	signal eth_pcs_pma_status_vector : std_logic_vector(15 downto 0);
-	signal eth_pcs_pma_an_restart_config : std_logic_vector(8 downto 0) := (others => '0');
-	signal mgt_clk_locked : std_logic_vector(8 downto 0);
+	signal eth_pcs_pma_an_restart_config : std_logic := '0';
+	signal mgt_clk_locked : std_logic;
 
 	type BYTE_ARRAY is array (natural range <>) of std_logic_vector(7 downto 0);
 	signal tcp_rx_tdata : BYTE_ARRAY(8 downto 0);
@@ -76,11 +77,13 @@ architecture arch of TDM_interconnect_top is
 	signal tcp_tx_tdata : BYTE_ARRAY(8 downto 0);
 	signal tcp_tx_tvalid, tcp_tx_tready : std_logic_vector(8 downto 0) := (others => '0');
 
+	type FIVE_BIT_ARRAY is array (natural range <>) of std_logic_vector(4 downto 0);
 	signal link_established_sata : std_logic_vector(8 downto 0);
+	signal left_margin, right_margin : FIVE_BIT_ARRAY(8 downto 0);
 
-	signal tcp_rx_tdata_internal  : std_logic_vector(7 downto 0);,
-	signal tcp_rx_tready_internal : std_logic := '0',
-	signal tcp_rx_tvalid_internal : std_logic := '0',
+	signal tcp_rx_tdata_internal  : std_logic_vector(7 downto 0);
+	signal tcp_rx_tready_internal : std_logic := '0';
+	signal tcp_rx_tvalid_internal : std_logic := '0';
 begin
 
 	ref_clk_mmcm_inst : entity work.ref_clk_mmcm
@@ -109,9 +112,9 @@ begin
 	--generate all SATA clocks from the same MMCM
 	clocks_gen_inst : entity work.SATA_interconnect_clk_gen
 		port map (
-			rst        => rst,
-			clk125_ref => clk_125_ref,
-			clk300     => clk_300_sata,
+			rst        => rst_sata,
+			clk125_ref => clk_125MHz_ref,
+			clk300     => clk_300MHz,
 
 			clk625   => clk_625_sata,
 			clk208   => clk_208_sata,
@@ -134,9 +137,9 @@ begin
 					tx_p => TRGCLK_OUTP(i),
 					tx_n => TRGCLK_OUTN(i),
 
-					status_vector    => sata_pcs_pma_status_array(i);
-					left_margin      => left_margin(i);
-					right_margin     => right_margin(i);
+					status_vector => sata_pcs_pma_status_array(i),
+					left_margin   => left_margin(i),
+					right_margin  => right_margin(i),
 
 					clk625   => clk_625_sata,
 					clk208   => clk_208_sata,
@@ -154,7 +157,7 @@ begin
 		end generate;
 
 	-- Slice out the link established bit from the status array
-	link_established<= sata_pcs_pma_status_array(8 downto 0)(0);
+	link_established_sata <= sata_pcs_pma_status_array(8 downto 0)(0);
 
 	--------------------  Resets  --------------------------
 	--Disable SFP when not present
@@ -201,11 +204,11 @@ begin
 	dbg(5 downto 4) <= "01" when link_established_sata = '1' else "10";
 	dbg(3 downto 0) <= (others => '0');
 
-	broadcast_sata : for i in 0 to 10 loop
+	sata_broadcast: for i in 0 to 8 generate
 	  tcp_rx_tdata(i)  <= tcp_rx_tdata_internal;
 		tcp_rx_tready(i) <= tcp_rx_tready_internal;
 		tcp_rx_tvalid(i) <= tcp_rx_tvalid_internal;
-	end loop;
+	end generate;
 
 	ethernet_comms_bd_inst : entity work.ethernet_comms_bd
 		port map (
