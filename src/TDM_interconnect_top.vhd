@@ -31,10 +31,10 @@ entity TDM_interconnect_top is
 
 		-- SATA intefaces
 		-- Trigger Outputs
-		TRGCLK_OUTN : out std_logic;
-		TRGCLK_OUTP : out std_logic;
-		TRGDAT_OUTN : in std_logic;
-		TRGDAT_OUTP : in std_logic;
+		TRGCLK_OUTN : out std_logic_vector(8 downto 0);
+		TRGCLK_OUTP : out std_logic_vector(8 downto 0);
+		TRGDAT_OUTN : out std_logic_vector(8 downto 0);
+		TRGDAT_OUTP : out std_logic_vector(8 downto 0);
 
 		-- debug header
 		dbg : inout std_logic_vector(8 downto 0)
@@ -57,20 +57,25 @@ architecture arch of TDM_interconnect_top is
 	signal clk_125MHz_ref, clk_125MHz_data, clk_125MHz_mac, clk_200MHz, clk_300MHz : std_logic;
 	signal ref_clk_locked, cfg_clk_locked : std_logic;
 
+	-- clocks from the MMCM for the sata interface
+	signal clk625_sata, clk208_sata, clk104_sata, clk125_sata : std_logic := '0';
+
 	signal rst_comblock, rst_eth_mac_rx_tx, rst_eth_mac_logic, rst_pcs_pma, rst_sata : std_logic := '0';
 	signal rst_sync_clk125MHz_mac, rst_sync_clk125MHz_data : std_logic := '0';
 
-	signal pcs_pma_status_vector : std_logic_vector(15 downto 0);
-	signal pcs_pma_an_restart_config : std_logic := '0';
-	signal mgt_clk_locked : std_logic;
+	type STATUS_ARRAY is array (0 to 8) of std_logic_vector(15 downto 0);
+	signal pcs_pma_status_vector : STATUS_ARRAY;
+	signal pcs_pma_an_restart_config : std_logic_vector(8 downto 0) := (others => '0');
+	signal mgt_clk_locked : std_logic_vector(8 downto 0);
 
-	signal tcp_rx_tdata : std_logic_vector(7 downto 0) := (others => '0');
-	signal tcp_rx_tvalid : std_logic := '0';
-	signal tcp_rx_tready : std_logic := '1';
-	signal tcp_tx_tdata : std_logic_vector(7 downto 0) := (others => '0');
-	signal tcp_tx_tvalid, tcp_tx_tready : std_logic := '0';
+	type BYTE_ARRAY is array (0 to 8) of std_logic_vector(7 downto 0);
+	signal tcp_rx_tdata : BYTE_ARRAY;
+	signal tcp_rx_tvalid : std_logic_vector(8 downto 0) := (others => '0');
+	signal tcp_rx_tready : std_logic_vector(8 downto 0) := (others => '1');
+	signal tcp_tx_tdata : BYTE_ARRAY;
+	signal tcp_tx_tvalid, tcp_tx_tready : std_logic_vector(8 downto 0) := (others => '0');
 
-	signal link_established_sata : std_logic;
+	signal link_established_sata : std_logic_vector(8 downto 0);
 
 begin
 
@@ -97,7 +102,52 @@ begin
 		locked     => cfg_clk_locked
 	);
 
-		--------------------  Resets  --------------------------
+	--generate all SATA clocks from the same MMCM
+	clocks_gen_inst : entity work.SATA_interconnect_clk_gen
+		port map (
+			rst        => rst,
+			clk125_ref => clk_125_ref,
+			clk300     => clk_300_sata,
+
+			clk625   => clk_625_sata,
+			clk208   => clk_208_sata,
+			clk104   => clk_104_sata,
+			clk125   => clk_125_sata,
+
+			mmcm_locked =>  mmcm_locked
+		);
+
+		--generate SATA interconnect for each of the TDM SATA ports
+	  tdm_sata_gen : for i in 0 to 8 generate
+			SATA_interconnect_inst : entity work.TDM_SATA_interconnect
+				port map (
+					rst        => rst_sata,
+					clk125_ref => clk_125MHz_ref,
+					clk300     => clk_300MHz,
+
+					rx_p => TRGDAT_OUTP(i),
+					rx_n => TRGDAT_OUTN(i),
+					tx_p => TRGCLK_OUTP(i),
+					tx_n => TRGCLK_OUTN(i),
+
+					link_established => link_established_sata(i),
+
+					clk625   => clk_625_sata,
+					clk208   => clk_208_sata,
+					clk104   => clk_104_sata,
+					clk125   => clk_125_sata,
+
+					clk125_user => clk_125MHz_data,
+					rx_tdata    => tcp_tx_tdata,
+					rx_tvalid   => tcp_tx_tvalid,
+					rx_tlast    => open,
+					tx_tdata    => tcp_rx_tdata,
+					tx_tvalid   => tcp_rx_tvalid,
+					tx_tlast    => '0'
+			);
+		end generate;
+
+	--------------------  Resets  --------------------------
 	--Disable SFP when not present
 	SFP_ENH <= '0' when SFP_PRESL = '1' or FPGA_RESETL = '0' else '1';
 	SFP_TXDIS <= '1' when SFP_PRESL = '1' or FPGA_RESETL = '0' else '0';
@@ -196,27 +246,5 @@ begin
 			udp_tx_tready => open,
 			udp_tx_tvalid => '0'
 		);
-
-	SATA_interconnect_inst : entity work.APS2_SATA_interconnect
-		port map (
-			rst => rst_sata,
-			clk125_ref => clk_125MHz_ref,
-			clk300     => clk_300MHz,
-
-			rx_p => TRGDAT_OUTP,
-			rx_n => TRGDAT_OUTN,
-			tx_p => TRGCLK_OUTP,
-			tx_n => TRGCLK_OUTN,
-
-			link_established => link_established_sata,
-
-			clk125_user => clk_125MHz_data,
-			rx_tdata    => tcp_tx_tdata,
-			rx_tvalid   => tcp_tx_tvalid,
-			rx_tlast    => open,
-			tx_tdata    => tcp_rx_tdata,
-			tx_tvalid   => tcp_rx_tvalid,
-			tx_tlast    => '0'
-	);
 
 end architecture;
