@@ -66,6 +66,8 @@ set_property top APS2_interconnect_top [current_fileset]
 update_compile_order -fileset sources_1
 
 add_files -fileset sim_1 -norecurse $REPO_PATH/test/SATA_interconnect_tb.vhd
+set_property used_in_simulation false [get_files $REPO_PATH/src/APS2_interconnect_top.vhd]
+set_property used_in_simulation false [get_files {ethernet_comms_bd.bd cfg_clk_mmcm.xci ref_clk_mmcm.xci}]
 update_compile_order -fileset sim_1
 
 # constraints
@@ -83,11 +85,13 @@ export_ip_user_files -of_objects [get_files sata_interconnect_pcs_pma.xci] -no_s
 create_ip_run [get_files -of_objects [get_fileset sources_1] sata_interconnect_pcs_pma.xci]
 launch_run -jobs 4 sata_interconnect_pcs_pma_synth_1
 wait_on_run sata_interconnect_pcs_pma_synth_1
+generate_target Simulation [get_files sata_interconnect_pcs_pma.xci]
+export_ip_user_files -of_objects [get_files sata_interconnect_pcs_pma.xci] -no_script -force -quiet
 
 # now take control
 set_property IS_MANAGED false [get_files sata_interconnect_pcs_pma.xci]
 
-# reset so that we don't reuse cached synthesis
+# reset design run so that we don't reuse cached synthesis
 reset_run sata_interconnect_pcs_pma_synth_1
 
 # apply the patches
