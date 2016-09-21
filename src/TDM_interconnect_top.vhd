@@ -63,20 +63,24 @@ architecture arch of TDM_interconnect_top is
 	signal rst_comblock, rst_eth_mac_rx_tx, rst_eth_mac_logic, rst_pcs_pma, rst_sata : std_logic := '0';
 	signal rst_sync_clk125MHz_mac, rst_sync_clk125MHz_data : std_logic := '0';
 
-	type STATUS_ARRAY is array (0 to 8) of std_logic_vector(15 downto 0);
-	signal pcs_pma_status_vector : STATUS_ARRAY;
-	signal pcs_pma_an_restart_config : std_logic_vector(8 downto 0) := (others => '0');
+	type STATUS_ARRAY is array (natural range <>) of std_logic_vector(15 downto 0);
+	signal sata_pcs_pma_status_array : STATUS_ARRAY(8 downto 0);
+	signal eth_pcs_pma_status_vector : std_logic_vector(15 downto 0);
+	signal eth_pcs_pma_an_restart_config : std_logic_vector(8 downto 0) := (others => '0');
 	signal mgt_clk_locked : std_logic_vector(8 downto 0);
 
-	type BYTE_ARRAY is array (0 to 8) of std_logic_vector(7 downto 0);
-	signal tcp_rx_tdata : BYTE_ARRAY;
+	type BYTE_ARRAY is array (natural range <>) of std_logic_vector(7 downto 0);
+	signal tcp_rx_tdata : BYTE_ARRAY(8 downto 0);
 	signal tcp_rx_tvalid : std_logic_vector(8 downto 0) := (others => '0');
 	signal tcp_rx_tready : std_logic_vector(8 downto 0) := (others => '1');
-	signal tcp_tx_tdata : BYTE_ARRAY;
+	signal tcp_tx_tdata : BYTE_ARRAY(8 downto 0);
 	signal tcp_tx_tvalid, tcp_tx_tready : std_logic_vector(8 downto 0) := (others => '0');
 
 	signal link_established_sata : std_logic_vector(8 downto 0);
 
+	signal tcp_rx_tdata_internal  : std_logic_vector(7 downto 0);,
+	signal tcp_rx_tready_internal : std_logic := '0',
+	signal tcp_rx_tvalid_internal : std_logic := '0',
 begin
 
 	ref_clk_mmcm_inst : entity work.ref_clk_mmcm
@@ -130,7 +134,9 @@ begin
 					tx_p => TRGCLK_OUTP(i),
 					tx_n => TRGCLK_OUTN(i),
 
-					link_established => link_established_sata(i),
+					status_vector    => sata_pcs_pma_status_array(i);
+					left_margin      => left_margin(i);
+					right_margin     => right_margin(i);
 
 					clk625   => clk_625_sata,
 					clk208   => clk_208_sata,
@@ -138,14 +144,17 @@ begin
 					clk125   => clk_125_sata,
 
 					clk125_user => clk_125MHz_data,
-					rx_tdata    => tcp_tx_tdata,
-					rx_tvalid   => tcp_tx_tvalid,
-					rx_tlast    => open,
-					tx_tdata    => tcp_rx_tdata,
-					tx_tvalid   => tcp_rx_tvalid,
-					tx_tlast    => '0'
+					rx_tdata    => tcp_tx_tdata(i),
+					rx_tvalid   => tcp_tx_tvalid(i),
+					rx_tready   => tcp_tx_tready(i),
+					tx_tdata    => tcp_rx_tdata(i),
+					tx_tvalid   => tcp_rx_tvalid(i),
+					tx_tready   => open
 			);
 		end generate;
+
+	-- Slice out the link established bit from the status array
+	link_established<= sata_pcs_pma_status_array(8 downto 0)(0);
 
 	--------------------  Resets  --------------------------
 	--Disable SFP when not present
@@ -161,10 +170,10 @@ begin
 		--Wait until all the clocks are locked
 		if cfg_clk_locked = '0' or mgt_clk_locked = '0' then
 			reset_ct := to_unsigned(12_500_000, reset_ct'length); --100ms at 125MHz ignoring off-by-one issues
-			pcs_pma_an_restart_config <= '0';
+			eth_pcs_pma_an_restart_config <= '0';
 		elsif rising_edge( clk_125MHz_mac ) then
 			if reset_ct(reset_ct'high) = '1' then
-				pcs_pma_an_restart_config <= '1';
+				eth_pcs_pma_an_restart_config <= '1';
 			else
 				reset_ct := reset_ct - 1;
 			end if;
@@ -188,9 +197,15 @@ begin
 	rst_eth_mac_logic <= rst_sync_clk125MHz_data;
 	rst_comblock <= rst_sync_clk125MHz_data;
 
-	dbg(7 downto 6) <= "01" when pcs_pma_status_vector(0) = '1' else "10";
+	dbg(7 downto 6) <= "01" when eth_pcs_pma_status_vector(0) = '1' else "10";
 	dbg(5 downto 4) <= "01" when link_established_sata = '1' else "10";
 	dbg(3 downto 0) <= (others => '0');
+
+	broadcast_sata : for i in 0 to 10 loop
+	  tcp_rx_tdata(i)  <= tcp_rx_tdata_internal;
+		tcp_rx_tready(i) <= tcp_rx_tready_internal;
+		tcp_rx_tvalid(i) <= tcp_rx_tvalid_internal;
+	end loop;
 
 	ethernet_comms_bd_inst : entity work.ethernet_comms_bd
 		port map (
@@ -220,19 +235,20 @@ begin
 
 			--SFP
 			mgt_clk_locked            => mgt_clk_locked,
-			pcs_pma_status_vector     => pcs_pma_status_vector,
-			pcs_pma_an_restart_config => pcs_pma_an_restart_config,
+			pcs_pma_status_vector     => eth_pcs_pma_status_vector,
+			pcs_pma_an_restart_config => eth_pcs_pma_an_restart_config,
 			sfp_rxn                   => sfp_rxn,
 			sfp_rxp                   => sfp_rxp,
 			sfp_txn                   => sfp_txn,
 			sfp_txp                   => sfp_txp,
 
-			tcp_rx_tdata  => tcp_rx_tdata,
-			tcp_rx_tready => tcp_rx_tready,
-			tcp_rx_tvalid => tcp_rx_tvalid,
-			tcp_tx_tdata  => tcp_tx_tdata,
-			tcp_tx_tready => tcp_tx_tready,
-			tcp_tx_tvalid => tcp_tx_tvalid,
+			tcp_rx_tdata  => tcp_rx_tdata_internal,
+			tcp_rx_tready => tcp_rx_tready_internal,
+			tcp_rx_tvalid => tcp_rx_tvalid_internal,
+
+			tcp_tx_tdata  => tcp_tx_tdata(0),
+			tcp_tx_tready => tcp_tx_tready(0),
+			tcp_tx_tvalid => tcp_tx_tvalid(0),
 
 			udp_rx_dest_port => (others => '0'),
 			udp_rx_tdata => open,

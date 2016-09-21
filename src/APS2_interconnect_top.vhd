@@ -73,6 +73,7 @@ architecture arch of APS2_interconnect_top is
 	signal tcp_tx_tdata : std_logic_vector(7 downto 0) := (others => '0');
 	signal tcp_tx_tvalid, tcp_tx_tready : std_logic := '0';
 
+	signal status_vector_sata : std_logic_vector(15 downto 0) := (others => '0');
 	signal link_established_sata : std_logic;
 	signal left_margin, right_margin : std_logic_vector(4 downto 0);
 
@@ -157,6 +158,8 @@ begin
 	dbg(5 downto 4) <= "01" when link_established_sata = '1' else "10";
 	dbg(3 downto 0) <= (others => '0');
 
+	link_established_sata <= status_vector_sata(0);
+
 	ethernet_comms_bd_inst : entity work.ethernet_comms_bd
 		port map (
 			--configuration constants
@@ -223,17 +226,17 @@ begin
 			tx_p => sata_data_p(1),
 			tx_n => sata_data_n(1),
 
-			link_established => link_established_sata,
+			status_vector => status_vector_sata,
 			left_margin => left_margin,
 			right_margin => right_margin,
 
-			clk125_user => clk_125MHz_data,
+			clk_user    => clk_300MHz,
 			rx_tdata    => tcp_tx_tdata,
 			rx_tvalid   => tcp_tx_tvalid,
-			rx_tlast    => open,
+			rx_tready   => tcp_tx_tready,
 			tx_tdata    => tcp_rx_tdata,
 			tx_tvalid   => tcp_rx_tvalid,
-			tx_tlast    => '0'
+			tx_tready   => tcp_rx_tready
 	);
 
 	-- Avoid DRC error from not terminating sata_clk_p/n(0) and sata_data_p/n(0)
