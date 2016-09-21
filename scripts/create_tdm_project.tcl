@@ -59,6 +59,7 @@ foreach xci $ip_srcs {
 #Sources
 add_files -norecurse $REPO_PATH/src
 add_files -norecurse $REPO_PATH/deps/VHDL-Components/src/Synchronizer.vhd
+add_files -fileset sources_1 -norecurse $REPO_PATH/deps/verilog-axis/rtl/axis_async_fifo.v
 remove_files $REPO_PATH/src/APS2_interconnect_top.vhd
 
 set_property top TDM_interconnect_top [current_fileset]
