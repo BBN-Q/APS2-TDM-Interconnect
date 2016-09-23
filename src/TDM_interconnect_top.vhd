@@ -31,10 +31,10 @@ entity TDM_interconnect_top is
 
 		-- SATA intefaces
 		-- Trigger Outputs
-		TRGCLK_OUTN : out std_logic_vector(8 downto 0);
-		TRGCLK_OUTP : out std_logic_vector(8 downto 0);
-		TRGDAT_OUTN : out std_logic_vector(8 downto 0);
-		TRGDAT_OUTP : out std_logic_vector(8 downto 0);
+		sata_clk_n : out std_logic_vector(8 downto 0);
+		sata_clk_p : out std_logic_vector(8 downto 0);
+		sata_dat_n : in std_logic_vector(8 downto 0);
+		sata_dat_p : in std_logic_vector(8 downto 0);
 
 		-- debug header
 		dbg : inout std_logic_vector(8 downto 0)
@@ -86,6 +86,9 @@ architecture arch of TDM_interconnect_top is
 	signal tcp_rx_tvalid_internal : std_logic := '0';
 begin
 
+	-- Tie 125MHz data clock to reference clock
+	clk_125MHz_data <= clk_125MHz_ref;
+
 	ref_clk_mmcm_inst : entity work.ref_clk_mmcm
 	port map (
 		-- Clock in ports
@@ -126,16 +129,20 @@ begin
 
 		--generate SATA interconnect for each of the TDM SATA ports
 	  tdm_sata_gen : for i in 0 to 8 generate
+			-- Slice out the link established bit from the status array
+			link_established_sata(i) <= sata_pcs_pma_status_array(i)(0);
+
+			-- Handle the SATA connection
 			SATA_interconnect_inst : entity work.TDM_SATA_interconnect
 				port map (
 					rst        => rst_sata,
 					clk125_ref => clk_125MHz_ref,
 					clk300     => clk_300MHz,
 
-					rx_p => TRGDAT_OUTP(i),
-					rx_n => TRGDAT_OUTN(i),
-					tx_p => TRGCLK_OUTP(i),
-					tx_n => TRGCLK_OUTN(i),
+					rx_p => sata_dat_p(i),
+					rx_n => sata_dat_n(i),
+					tx_p => sata_clk_p(i),
+					tx_n => sata_clk_n(i),
 
 					status_vector => sata_pcs_pma_status_array(i),
 					left_margin   => left_margin(i),
@@ -146,7 +153,7 @@ begin
 					clk104   => clk_104_sata,
 					clk125   => clk_125_sata,
 
-					clk125_user => clk_125MHz_data,
+					clk_user    => clk_125MHz_data,
 					rx_tdata    => tcp_tx_tdata(i),
 					rx_tvalid   => tcp_tx_tvalid(i),
 					rx_tready   => tcp_tx_tready(i),
@@ -155,9 +162,6 @@ begin
 					tx_tready   => open
 			);
 		end generate;
-
-	-- Slice out the link established bit from the status array
-	link_established_sata <= sata_pcs_pma_status_array(8 downto 0)(0);
 
 	--------------------  Resets  --------------------------
 	--Disable SFP when not present
@@ -201,7 +205,7 @@ begin
 	rst_comblock <= rst_sync_clk125MHz_data;
 
 	dbg(7 downto 6) <= "01" when eth_pcs_pma_status_vector(0) = '1' else "10";
-	dbg(5 downto 4) <= "01" when link_established_sata = '1' else "10";
+	dbg(5 downto 4) <= "01" when link_established_sata(0) = '1' else "10";
 	dbg(3 downto 0) <= (others => '0');
 
 	sata_broadcast: for i in 0 to 8 generate

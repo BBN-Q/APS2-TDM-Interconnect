@@ -8,7 +8,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-use work.verilog_axis_TDMaxis_async_fifo;
+use work.verilog_axis_pkg.axis_async_fifo;
 
 entity TDM_SATA_interconnect is
 	port (
@@ -60,7 +60,7 @@ architecture arch of TDM_SATA_interconnect is
   signal gmii_rx_dv : std_logic := '0';
   signal gmii_rx_er : std_logic := '0';
 
-  signal mmcm_locked : std_logic_vector(8 downto 0) := (others => '0');
+  signal mmcm_locked : std_logic := '0';
 
   signal sgmii_clk_r  : std_logic := '0';
   signal sgmii_clk_f  : std_logic := '0';
@@ -71,9 +71,9 @@ architecture arch of TDM_SATA_interconnect is
   type rx_framer_state_t is (IDLE, PASSTHROUGH);
   signal rx_framer_state : rx_framer_state_t := IDLE;
 
-  signal tx_int_tdata : std_logic_vector(7 downto 0);
-  signal tx_int_tvalid, tx_int_tready : std_logic_vector(8 downto 0) := (others => '0');
-  signal rx_int_tvalid : std_logic_vector(8 downto 0) := (others => '0');
+	signal tx_int_tdata : std_logic_vector(7 downto 0);
+	signal tx_int_tvalid, tx_int_tready : std_logic := '0';
+	signal rx_int_tvalid : std_logic := '0';
 
   begin
 
