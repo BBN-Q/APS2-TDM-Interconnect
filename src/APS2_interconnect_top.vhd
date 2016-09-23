@@ -89,6 +89,9 @@ architecture arch of APS2_interconnect_top is
 
 begin
 
+	-- Tie 125MHz data clock to reference clock
+	clk_125MHz_data <= clk_125MHz_ref;
+
 	ref_clk_mmcm_inst : entity work.ref_clk_mmcm
 	port map (
 		-- Clock in ports
@@ -230,7 +233,7 @@ begin
 			left_margin => left_margin,
 			right_margin => right_margin,
 
-			clk_user    => clk_300MHz,
+			clk_user    => clk_125MHz_data,
 			rx_tdata    => tcp_tx_tdata,
 			rx_tvalid   => tcp_tx_tvalid,
 			rx_tready   => tcp_tx_tready,
