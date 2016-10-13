@@ -249,25 +249,13 @@ begin
 			sfp_txn                   => sfp_txn,
 			sfp_txp                   => sfp_txp,
 
-			tcp_rx_tdata  => tcp_rx_tdata_internal,
-			tcp_rx_tready => tcp_rx_tready_internal,
-			tcp_rx_tvalid => tcp_rx_tvalid_internal,
+			tcp_rx_tdata  => tcp_rx_tdata,
+			tcp_rx_tready => tcp_rx_tready,
+			tcp_rx_tvalid => tcp_rx_tvalid,
+			tcp_tx_tdata  => tcp_tx_tdata,
+			tcp_tx_tready => tcp_tx_tready,
+			tcp_tx_tvalid => tcp_tx_tvalid
 
-			tcp_tx_tdata  => tcp_tx_tdata(0),
-			tcp_tx_tready => tcp_tx_tready(0),
-			tcp_tx_tvalid => tcp_tx_tvalid(0),
-
-			udp_rx_dest_port => (others => '0'),
-			udp_rx_tdata => open,
-			udp_rx_tlast => open,
-			udp_rx_tvalid => open,
-			udp_tx_dest_ip_addr => (others => '0'),
-			udp_tx_dest_port => (others => '0'),
-			udp_tx_src_port => (others => '0'),
-			udp_tx_tdata => (others => '0'),
-			udp_tx_tlast => '0',
-			udp_tx_tready => open,
-			udp_tx_tvalid => '0'
 		);
 
 end architecture;
