@@ -5,7 +5,7 @@
 # then source this file. E.g.
 #
 # set argv [list "/home/cryan/Programming/FPGA" "APS2-Interconnect-impl"] or
-# or  set argv [list "C:/Users/qlab/Documents/Xilinx Projects/" "APS2-Interconnect-impl"]
+# or  set argv [list "C:/Users/qlab/Documents/Xilinx_Projects/" "APS2-Interconnect-impl"]
 # source create_impl_project.tcl
 #
 # from Vivado batch mode use the -tclargs to pass argv
@@ -25,6 +25,13 @@ set REPO_PATH [file dirname $SCRIPT_PATH]/../
 # TODO: figure out how to handle board files
 # set_param board.repoPaths [list $REPO_PATH../APS2-HDL/src/board_file]*/
 
+# on Windows look for Github git
+if { $tcl_platform(platform) == "windows"} {
+  set git_cmd [glob ~/AppData/Local/GitHub/PortableGit*/cmd/git.exe]
+} else {
+  set git_cmd git
+}
+
 # setup project
 create_project -force $PROJECT_NAME $PROJECT_DIR/$PROJECT_NAME -part xc7a200tfbg676-2
 set_property "simulator_language" "Mixed" [current_project]
@@ -34,6 +41,100 @@ set_property "target_language" "VHDL" [current_project]
 # TODO: fix once APS2 comms is split out
 set_property ip_repo_paths $REPO_PATH../APS2-HDL/src/ip [current_project]
 update_ip_catalog -rebuild
+
+# Add the relevant sources before constructing the block diagram
+# helper script to add necessary files to current project
+
+set APS2_COMMS_REPO_PATH $REPO_PATH/deps/APS2-Comms/
+
+# create dependency outputs
+set cur_dir [pwd]
+cd $APS2_COMMS_REPO_PATH/deps/verilog-axis/rtl
+exec python axis_mux.py --ports=3 --output=axis_mux_3.v
+exec python axis_arb_mux.py --ports=3 --output=axis_arb_mux_3.v
+exec python axis_demux.py --ports=2 --output=axis_demux_2.v
+
+# patch demux because select is keyword in VHDL
+set fp [open axis_demux_2.v r]
+set demux [read $fp]
+close $fp
+regsub -all {select} $demux control demux
+set fp [open axis_demux_2.v w]
+puts -nonewline $fp $demux
+close $fp
+
+#import into project and then delete to avoid dirty submodule
+import_files -norecurse -flat \
+	$APS2_COMMS_REPO_PATH/deps/verilog-axis/rtl/axis_demux_2.v \
+	$APS2_COMMS_REPO_PATH/deps/verilog-axis/rtl/axis_mux_3.v \
+	$APS2_COMMS_REPO_PATH/deps/verilog-axis/rtl/axis_arb_mux_3.v
+
+file delete axis_demux_2.v axis_mux_3.v axis_arb_mux_3.v
+
+# patch the Com5402 module for UDP broadcast issue and add DHCP module
+cd $APS2_COMMS_REPO_PATH/deps/ComBlock/5402
+file copy -force com5402.vhd com5402.backup
+# ignore whitespace warnings - seems a little dangerous
+exec $git_cmd apply com5402_dhcp.patch --directory=deps/ComBlock/5402 --ignore-whitespace
+file copy -force com5402.backup com5402.vhd
+cd $cur_dir
+
+# BBN source files
+add_files -norecurse $APS2_COMMS_REPO_PATH/src
+
+# dependecies
+add_files -norecurse $APS2_COMMS_REPO_PATH/deps/VHDL-Components/src/Synchronizer.vhd
+
+add_files -norecurse \
+	$APS2_COMMS_REPO_PATH/deps/verilog-axis/rtl/axis_adapter.v \
+	$APS2_COMMS_REPO_PATH/deps/verilog-axis/rtl/axis_srl_fifo.v \
+	$APS2_COMMS_REPO_PATH/deps/verilog-axis/rtl/axis_async_fifo.v \
+	$APS2_COMMS_REPO_PATH/deps/verilog-axis/rtl/axis_frame_fifo.v \
+	$APS2_COMMS_REPO_PATH/deps/verilog-axis/rtl/axis_async_frame_fifo.v \
+	$APS2_COMMS_REPO_PATH/deps/verilog-axis/rtl/arbiter.v \
+	$APS2_COMMS_REPO_PATH/deps/verilog-axis/rtl/priority_encoder.v
+
+add_files -norecurse \
+	$APS2_COMMS_REPO_PATH/deps/verilog-ethernet/rtl/eth_mac_1g_fifo.v \
+	$APS2_COMMS_REPO_PATH/deps/verilog-ethernet/rtl/eth_mac_1g.v \
+	$APS2_COMMS_REPO_PATH/deps/verilog-ethernet/rtl/eth_mac_1g_rx.v \
+	$APS2_COMMS_REPO_PATH/deps/verilog-ethernet/rtl/eth_mac_1g_tx.v \
+	$APS2_COMMS_REPO_PATH/deps/verilog-ethernet/rtl/lfsr.v
+
+add_files -norecurse \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/arp_cache2.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/arp.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/bram_dp2.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/com5402_dhcp.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/com5402pkg.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/dhcp_client.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/igmp_query.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/igmp_report.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/packet_parsing.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/ping.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/tcp_rxbufndemux2.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/tcp_server.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/tcp_txbuf.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/tcp_tx.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/timer_4us.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/udp_rx.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/udp_tx.vhd \
+	$APS2_COMMS_REPO_PATH/deps/ComBlock/5402/whois2.vhd
+
+update_compile_order -fileset sources_1
+update_compile_order -fileset sim_1
+
+#Sources
+add_files -norecurse $REPO_PATH/src
+add_files -norecurse $REPO_PATH/deps/VHDL-Components/src/Synchronizer.vhd
+add_files -norecurse $REPO_PATH/deps/APS2-Comms/src/eth_mac_1g_fifo_wrapper.vhd
+add_files -norecurse $REPO_PATH/deps/APS2-Comms/src/com5402_wrapper.vhd
+add_files -norecurse $REPO_PATH/deps/APS2-Comms/src/com5402_wrapper_pkg.vhd
+add_files -fileset sources_1 -norecurse $REPO_PATH/deps/verilog-axis/rtl/axis_async_fifo.v
+remove_files $REPO_PATH/src/TDM_interconnect_top.vhd
+
+# Additional constraints
+add_files -fileset constrs_1 -norecurse $APS2_COMMS_REPO_PATH/constraints/async_fifos.tcl
 
 # Block designs
 set bds [glob $REPO_PATH/src/bd/*.tcl]
@@ -56,19 +157,8 @@ foreach xci $ip_srcs {
   import_ip $xci
 }
 
-#Sources for implementation
-add_files -fileset sources_1 -norecurse $REPO_PATH/src
-add_files -fileset sources_1 -norecurse $REPO_PATH/deps/VHDL-Components/src/Synchronizer.vhd
-add_files -fileset sources_1 -norecurse $REPO_PATH/deps/verilog-axis/rtl/axis_async_fifo.v
-remove_files $REPO_PATH/src/TDM_interconnect_top.vhd
-
 set_property top APS2_interconnect_top [current_fileset]
 update_compile_order -fileset sources_1
-
-add_files -fileset sim_1 -norecurse $REPO_PATH/test/SATA_interconnect_tb.vhd
-set_property used_in_simulation false [get_files $REPO_PATH/src/APS2_interconnect_top.vhd]
-set_property used_in_simulation false [get_files {ethernet_comms_bd.bd cfg_clk_mmcm.xci ref_clk_mmcm.xci}]
-update_compile_order -fileset sim_1
 
 # constraints
 add_files -fileset constrs_1 -norecurse $REPO_PATH/deps/VHDL-Components/constraints/synchronizer.tcl
@@ -85,24 +175,14 @@ export_ip_user_files -of_objects [get_files sata_interconnect_pcs_pma.xci] -no_s
 create_ip_run [get_files -of_objects [get_fileset sources_1] sata_interconnect_pcs_pma.xci]
 launch_run -jobs 4 sata_interconnect_pcs_pma_synth_1
 wait_on_run sata_interconnect_pcs_pma_synth_1
-generate_target Simulation [get_files sata_interconnect_pcs_pma.xci]
-export_ip_user_files -of_objects [get_files sata_interconnect_pcs_pma.xci] -no_script -force -quiet
 
 # now take control
 set_property IS_MANAGED false [get_files sata_interconnect_pcs_pma.xci]
 
-# reset design run so that we don't reuse cached synthesis
+# reset so that we don't reuse cached synthesis
 reset_run sata_interconnect_pcs_pma_synth_1
 
 # apply the patches
-
-# on Windows look for Github git
-if { $tcl_platform(platform) == "windows"} {
-  set git_cmd [glob ~/AppData/Local/GitHub/PortableGit*/cmd/git.exe]
-} else {
-  set git_cmd git
-}
-
 set sata_interconnect_pcs_pma_ip_path [file dirname [get_files sata_interconnect_pcs_pma.xci]]
 set cur_dir [pwd]
 cd $sata_interconnect_pcs_pma_ip_path
