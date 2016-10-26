@@ -37,11 +37,6 @@ create_project -force $PROJECT_NAME $PROJECT_DIR/$PROJECT_NAME -part xc7a200tfbg
 set_property "simulator_language" "Mixed" [current_project]
 set_property "target_language" "VHDL" [current_project]
 
-# Rebuild user ip_repo's index with our UserIP before adding any source files
-# TODO: fix once APS2 comms is split out
-# set_property ip_repo_paths $REPO_PATH../APS2-HDL/src/ip [current_project]
-# update_ip_catalog -rebuild
-
 # Add the relevant sources before constructing the block diagram
 # helper script to add necessary files to current project
 
@@ -150,6 +145,7 @@ foreach bd_path $bds {
   close_bd_design [get_bd_designs $bd]
   generate_target all [get_files $bd.bd] -quiet
   export_ip_user_files -of_objects [get_files $bd.bd] -no_script -force -quiet
+  create_ip_run [get_files -of_objects [get_fileset sources_1] [get_files $bd.bd]]
 }
 
 #Xilinx IP
@@ -173,15 +169,11 @@ set_property STEPS.WRITE_BITSTREAM.ARGS.BIN_FILE true [get_runs impl_1]
 # Manage the SATA PCS/PMA IP core ourselves so that we can muck with the HDL
 # first generate HDL
 export_ip_user_files -of_objects [get_files sata_interconnect_pcs_pma.xci] -no_script -force -quiet
+generate_target all [get_files sata_interconnect_pcs_pma.xci]
 create_ip_run [get_files -of_objects [get_fileset sources_1] sata_interconnect_pcs_pma.xci]
-launch_run -jobs 4 sata_interconnect_pcs_pma_synth_1
-wait_on_run sata_interconnect_pcs_pma_synth_1
 
 # now take control
 set_property IS_MANAGED false [get_files sata_interconnect_pcs_pma.xci]
-
-# reset so that we don't reuse cached synthesis
-reset_run sata_interconnect_pcs_pma_synth_1
 
 # apply the patches
 set sata_interconnect_pcs_pma_ip_path [file dirname [get_files sata_interconnect_pcs_pma.xci]]
