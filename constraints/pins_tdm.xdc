@@ -90,7 +90,6 @@ set_property PACKAGE_PIN AB24 [get_ports {sata_dat_p[8]}]
 set_property IOSTANDARD LVDS_25 [get_ports {sata_clk_p[*]}]
 set_property IOSTANDARD LVDS_25 [get_ports {sata_dat_p[*]}]
 
-set_property DIFF_TERM true [get_ports {sata_clk_p[*]}]
 set_property DIFF_TERM true [get_ports {sata_dat_p[*]}]
 
 # Auxiliary SATA

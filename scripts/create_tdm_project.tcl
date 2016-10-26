@@ -39,8 +39,8 @@ set_property "target_language" "VHDL" [current_project]
 
 # Rebuild user ip_repo's index with our UserIP before adding any source files
 # TODO: fix once APS2 comms is split out
-set_property ip_repo_paths $REPO_PATH../APS2-HDL/src/ip [current_project]
-update_ip_catalog -rebuild
+# set_property ip_repo_paths $REPO_PATH../APS2-HDL/src/ip [current_project]
+# update_ip_catalog -rebuild
 
 # Add the relevant sources before constructing the block diagram
 # helper script to add necessary files to current project
@@ -126,7 +126,7 @@ update_compile_order -fileset sim_1
 
 # constraints (have to add tcl files separately)
 # add_files -fileset constrs_1 -norecurse $APS2_COMMS_REPO_PATH/constraints
-# add_files -fileset constrs_1 -norecurse $APS2_COMMS_REPO_PATH/constraints/async_fifos.tcl
+add_files -fileset constrs_1 -norecurse $APS2_COMMS_REPO_PATH/constraints/async_fifos.tcl
 
 #Sources
 add_files -norecurse $REPO_PATH/src
