@@ -1,29 +1,22 @@
-diff --git a/TDM-interconnect/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/lvds_transceiver/sata_interconnect_pcs_pma_sgmii_phy_iob.vhd b/APS2-interconnect/APS2-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/lvds_transceiver/sata_interconnect_pcs_pma_sgmii_phy_iob.vhd
-index 0903410..687d174 100644
---- a/TDM-interconnect/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/lvds_transceiver/sata_interconnect_pcs_pma_sgmii_phy_iob.vhd
-+++ b/APS2-interconnect/APS2-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/lvds_transceiver/sata_interconnect_pcs_pma_sgmii_phy_iob.vhd
+diff --git a/TDM-interconnect-base/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/lvds_transceiver/sata_interconnect_pcs_pma_sgmii_phy_iob.vhd b/TDM-interconnect/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/lvds_transceiver/sata_interconnect_pcs_pma_sgmii_phy_iob.vhd
+index 0903410..91e905f 100644
+--- a/TDM-interconnect-base/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/lvds_transceiver/sata_interconnect_pcs_pma_sgmii_phy_iob.vhd
++++ b/TDM-interconnect/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/lvds_transceiver/sata_interconnect_pcs_pma_sgmii_phy_iob.vhd
 @@ -236,7 +236,7 @@ end process;
-       HIGH_PERFORMANCE_MODE => "TRUE",
-       IDELAY_TYPE           => "VARIABLE",
-       IDELAY_VALUE          => 0,
+       HIGH_PERFORMANCE_MODE => "TRUE", 
+       IDELAY_TYPE           => "VARIABLE",      
+       IDELAY_VALUE          => 0,              
 -      REFCLK_FREQUENCY      => 200.0,      
 +      REFCLK_FREQUENCY      => 300.0,      
-       SIGNAL_PATTERN        => "DATA",
-       PIPE_SEL              => "FALSE"
+       SIGNAL_PATTERN        => "DATA",       
+       PIPE_SEL              => "FALSE"             
     )
 @@ -390,7 +390,7 @@ end process;
-       HIGH_PERFORMANCE_MODE => "TRUE",
-       IDELAY_TYPE           => "VARIABLE",
-       IDELAY_VALUE          => 0,
+       HIGH_PERFORMANCE_MODE => "TRUE", 
+       IDELAY_TYPE           => "VARIABLE",      
+       IDELAY_VALUE          => 0,              
 -      REFCLK_FREQUENCY      => 200.0,      
 +      REFCLK_FREQUENCY      => 300.0,      
-       SIGNAL_PATTERN        => "DATA",
-       PIPE_SEL              => "FALSE"
+       SIGNAL_PATTERN        => "DATA",       
+       PIPE_SEL              => "FALSE"             
     )
-@@ -540,6 +540,3 @@ port map (
-    );
- 
- end xilinx;
--
--
--
