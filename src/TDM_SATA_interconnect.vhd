@@ -221,39 +221,39 @@ architecture arch of TDM_SATA_interconnect is
 	);
 
 
-  -- instantiate the pcs/pma core
-  pcs_pma_core_inst : entity work.sata_interconnect_pcs_pma
-  	port map (
-  		txn                  => tx_n,
-  		txp                  => tx_p,
-  		rxn                  => rx_n,
-  		rxp                  => rx_p,
-  		clk125m              => clk125,
-  		mmcm_locked          => mmcm_locked,
-  		sgmii_clk_r          => sgmii_clk_r,
-  		sgmii_clk_f          => sgmii_clk_f,
-  		sgmii_clk_en         => sgmii_clk_en,
-  		clk625               => clk625,
-  		clk208               => clk208,
-  		clk104               => clk104,
-  		gmii_txd             => gmii_txd,
-  		gmii_tx_en           => gmii_tx_en,
-  		gmii_tx_er           => gmii_tx_er,
-  		gmii_rxd             => gmii_rxd,
-  		gmii_rx_dv           => gmii_rx_dv,
-  		gmii_rx_er           => gmii_rx_er,
-  		gmii_isolate         => open,
-  		configuration_vector => PCS_PMA_CONFIGURATION_VECTOR,
-  		an_interrupt         => open,
-  		an_adv_config_vector => PCS_PMA_AN_ADV_CONFIG_VECTOR,
-  		an_restart_config    => '0',
-  		speed_is_10_100      => '0',
-  		speed_is_100         => '0',
-  		status_vector        => status_vector,
-  		reset                => rst,
-  		signal_detect        => '1',
-  		left_margin          => left_margin,
-  		right_margin         => right_margin
-  	);
+-- instantiate the pcs/pma core
+pcs_pma_core_inst : entity work.sata_interconnect_pcs_pma
+	port map (
+		txn                  => tx_n,
+		txp                  => tx_p,
+		rxn                  => rx_n,
+		rxp                  => rx_p,
+		clk125m              => clk125,
+		mmcm_locked          => mmcm_locked,
+		sgmii_clk_r          => sgmii_clk_r,
+		sgmii_clk_f          => sgmii_clk_f,
+		sgmii_clk_en         => sgmii_clk_en,
+		clk625               => clk625,
+		clk208               => clk208,
+		clk104               => clk104,
+		gmii_txd             => gmii_txd,
+		gmii_tx_en           => gmii_tx_en,
+		gmii_tx_er           => gmii_tx_er,
+		gmii_rxd             => gmii_rxd,
+		gmii_rx_dv           => gmii_rx_dv,
+		gmii_rx_er           => gmii_rx_er,
+		gmii_isolate         => open,
+		configuration_vector => PCS_PMA_CONFIGURATION_VECTOR,
+		an_interrupt         => open,
+		an_adv_config_vector => PCS_PMA_AN_ADV_CONFIG_VECTOR,
+		an_restart_config    => '0',
+		speed_is_10_100      => '0',
+		speed_is_100         => '0',
+		status_vector        => status_vector,
+		reset                => rst,
+		signal_detect        => '1',
+		left_margin          => left_margin,
+		right_margin         => right_margin
+	);
 
-  end architecture;
+end architecture;
