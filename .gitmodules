@@ -4,3 +4,6 @@
 [submodule "deps/verilog-axis"]
 	path = deps/verilog-axis
 	url = git@github.com:alexforencich/verilog-axis.git
+[submodule "deps/APS2-Comms"]
+	path = deps/APS2-Comms
+	url = https://github.com/BBN-Q/APS2-Comms.git
