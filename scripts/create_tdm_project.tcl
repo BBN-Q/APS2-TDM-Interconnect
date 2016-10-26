@@ -5,7 +5,7 @@
 # then source this file. E.g.
 #
 # set argv [list "/home/cryan/Programming/FPGA" "TDM-interconnect"] or
-# or  set argv [list "C:/Users/qlab/Documents/Xilinx Projects/" "TDM-interconnect-impl"]
+# or  set argv [list "C:/Users/qlab/Documents/Xilinx_Projects/" "TDM-interconnect"]
 # source create_tdm_project.tcl
 #
 # from Vivado batch mode use the -tclargs to pass argv
@@ -180,5 +180,5 @@ set_property IS_MANAGED false [get_files sata_interconnect_pcs_pma.xci]
 set sata_interconnect_pcs_pma_ip_path [file dirname [get_files sata_interconnect_pcs_pma.xci]]
 set cur_dir [pwd]
 cd $sata_interconnect_pcs_pma_ip_path
-exec -ignorestderr $git_cmd apply -p6 --ignore-whitespace $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.output_margins.patch $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.300MHz_IDELAYCTRL.patch
+exec -ignorestderr $git_cmd apply -p6 --ignore-whitespace $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.output_margins.patch #$REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.300MHz_IDELAYCTRL.patch
 cd $cur_dir

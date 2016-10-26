@@ -4,8 +4,8 @@
 # Usage: at the Tcl console manually set the argv to set the PROJECT_DIR and PROJECT_NAME and
 # then source this file. E.g.
 #
-# set argv [list "/home/cryan/Programming/FPGA" "APS2-Interconnect-impl"] or
-# or  set argv [list "C:/Users/qlab/Documents/Xilinx_Projects/" "APS2-Interconnect-impl"]
+# set argv [list "/home/cryan/Programming/FPGA" "APS2-interconnect"] or
+# or  set argv [list "C:/Users/qlab/Documents/Xilinx_Projects/" "APS2-interconnect"]
 # source create_impl_project.tcl
 #
 # from Vivado batch mode use the -tclargs to pass argv
@@ -75,7 +75,7 @@ file delete axis_demux_2.v axis_mux_3.v axis_arb_mux_3.v
 cd $APS2_COMMS_REPO_PATH/deps/ComBlock/5402
 file copy -force com5402.vhd com5402.backup
 # ignore whitespace warnings - seems a little dangerous
-exec $git_cmd apply com5402_dhcp.patch --directory=deps/ComBlock/5402 --ignore-whitespace
+exec -ignorestderr $git_cmd apply com5402_dhcp.patch --directory=deps/ComBlock/5402 --ignore-whitespace
 file copy -force com5402.backup com5402.vhd
 cd $cur_dir
 
@@ -183,5 +183,5 @@ set_property IS_MANAGED false [get_files sata_interconnect_pcs_pma.xci]
 set sata_interconnect_pcs_pma_ip_path [file dirname [get_files sata_interconnect_pcs_pma.xci]]
 set cur_dir [pwd]
 cd $sata_interconnect_pcs_pma_ip_path
-exec $git_cmd apply -p6 --ignore-whitespace $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.output_margins.patch $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.300MHz_IDELAYCTRL.patch
+exec -ignorestderr $git_cmd apply -p6 --ignore-whitespace $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.output_margins.patch $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.300MHz_IDELAYCTRL.patch
 cd $cur_dir
