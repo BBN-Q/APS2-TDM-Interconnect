@@ -20,7 +20,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2016.1
+set scripts_vivado_version 2016.3
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -246,16 +246,10 @@ CONFIG.POLARITY {ACTIVE_HIGH} \
    }
   
   # Create instance: gig_ethernet_pcs_pma_0, and set properties
-  set gig_ethernet_pcs_pma_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:gig_ethernet_pcs_pma:15.2 gig_ethernet_pcs_pma_0 ]
+  set gig_ethernet_pcs_pma_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:gig_ethernet_pcs_pma:16.0 gig_ethernet_pcs_pma_0 ]
   set_property -dict [ list \
 CONFIG.Management_Interface {false} \
-CONFIG.Physical_Interface {Transceiver} \
 CONFIG.SupportLevel {Include_Shared_Logic_in_Core} \
- ] $gig_ethernet_pcs_pma_0
-
-  # Need to retain value_src of defaults
-  set_property -dict [ list \
-CONFIG.Physical_Interface.VALUE_SRC {DEFAULT} \
  ] $gig_ethernet_pcs_pma_0
 
   # Create interface connections
@@ -293,7 +287,7 @@ CONFIG.Physical_Interface.VALUE_SRC {DEFAULT} \
   # Perform GUI Layout
   regenerate_bd_layout -layout_string {
    DisplayTieOff: "1",
-   guistr: "# # String gsaved with Nlview 6.5.12  2016-01-29 bk=1.3547 VDI=39 GEI=35 GUI=JA:1.6
+   guistr: "# # String gsaved with Nlview 6.6.5b  2016-09-06 bk=1.3687 VDI=39 GEI=35 GUI=JA:1.6
 #  -string -flagsOSRD
 preplace port sfp_mgt_clk -pg 1 -y 170 -defaultsOSRD
 preplace port tcp_rx -pg 1 -y 670 -defaultsOSRD
@@ -318,36 +312,36 @@ preplace portBus subnet_mask -pg 1 -y 720 -defaultsOSRD
 preplace portBus pcs_pma_configuration_vector -pg 1 -y 210 -defaultsOSRD
 preplace portBus pcs_pma_an_adv_config_vector -pg 1 -y 230 -defaultsOSRD
 preplace portBus IPv4_addr -pg 1 -y 700 -defaultsOSRD
-preplace inst eth_mac_1g_fifo_wrapper_0 -pg 1 -lvl 1 -y 420 -defaultsOSRD
 preplace inst com5402_wrapper_0 -pg 1 -lvl 2 -y 710 -defaultsOSRD
+preplace inst eth_mac_1g_fifo_wrapper_0 -pg 1 -lvl 1 -y 420 -defaultsOSRD
 preplace inst gig_ethernet_pcs_pma_0 -pg 1 -lvl 2 -y 220 -defaultsOSRD
 preplace netloc gig_ethernet_pcs_pma_0_sfp 1 2 1 NJ
 preplace netloc ifg_delay_1 1 0 1 NJ
-preplace netloc eth_mac_1g_fifo_wrapper_0_gmii 1 1 1 330
-preplace netloc com5402_wrapper_0_mac_tx 1 0 3 30 910 NJ 910 720
+preplace netloc eth_mac_1g_fifo_wrapper_0_gmii 1 1 1 340
+preplace netloc com5402_wrapper_0_mac_tx 1 0 3 20 580 350J 510 760
 preplace netloc independent_clock_bufg_1 1 0 2 NJ 190 NJ
 preplace netloc IPv4_addr_1 1 0 2 NJ 700 NJ
 preplace netloc rst_1 1 0 2 NJ 640 NJ
 preplace netloc an_adv_config_vector_1 1 0 2 NJ 230 NJ
-preplace netloc tcp_tx_1 1 0 2 NJ 580 NJ
+preplace netloc tcp_tx_1 1 0 2 0J 590 360J
 preplace netloc mac_addr_1 1 0 2 NJ 680 NJ
-preplace netloc logic_rst_1 1 0 1 20
+preplace netloc logic_rst_1 1 0 1 10
 preplace netloc configuration_vector_1 1 0 2 NJ 210 NJ
 preplace netloc logic_rst_2 1 0 1 NJ
-preplace netloc gig_ethernet_pcs_pma_0_userclk2_out 1 1 2 340 450 720
-preplace netloc an_restart_config_1 1 0 2 NJ 250 NJ
+preplace netloc gig_ethernet_pcs_pma_0_userclk2_out 1 1 2 360 450 760
+preplace netloc an_restart_config_1 1 0 2 10J 240 360J
 preplace netloc gtrefclk_in_1 1 0 2 NJ 170 NJ
 preplace netloc com5402_wrapper_0_tcp_rx 1 2 1 NJ
 preplace netloc tcp_rst_1 1 0 2 NJ 660 NJ
 preplace netloc tcp_port_1 1 0 2 NJ 860 NJ
-preplace netloc rx_clk_1 1 0 2 20 620 NJ
+preplace netloc rx_clk_1 1 0 2 10 620 NJ
 preplace netloc subnet_mask_1 1 0 2 NJ 720 NJ
 preplace netloc gig_ethernet_pcs_pma_0_mmcm_locked_out 1 2 1 NJ
-preplace netloc reset_1 1 0 2 NJ 260 NJ
+preplace netloc reset_1 1 0 2 20J 250 350J
 preplace netloc gig_ethernet_pcs_pma_0_status_vector 1 2 1 NJ
 preplace netloc gateway_ip_addr_1 1 0 2 NJ 740 NJ
-preplace netloc eth_mac_1g_fifo_wrapper_0_rx_axis 1 1 1 330
-levelinfo -pg 1 0 180 530 740 -top 0 -bot 920
+preplace netloc eth_mac_1g_fifo_wrapper_0_rx_axis 1 1 1 340
+levelinfo -pg 1 -20 180 560 780 -top -10 -bot 920
 ",
 }
 

@@ -4,12 +4,12 @@
 # Usage: at the Tcl console manually set the argv to set the PROJECT_DIR and PROJECT_NAME and
 # then source this file. E.g.
 #
-# set argv [list "/home/cryan/Programming/FPGA" "TDM-interconnect-impl"] or
+# set argv [list "/home/cryan/Programming/FPGA" "TDM-interconnect"] or
 # or  set argv [list "C:/Users/qlab/Documents/Xilinx Projects/" "TDM-interconnect-impl"]
-# source create_impl_project.tcl
+# source create_tdm_project.tcl
 #
 # from Vivado batch mode use the -tclargs to pass argv
-# vivado -mode batch -source create_impl_project.tcl -tclargs "/home/cryan/Programming/FPGA" "TDM-interconnect-impl"
+# vivado -mode batch -source create_tdm_project.tcl -tclargs "/home/cryan/Programming/FPGA" "TDM-interconnect"
 #
 ##################################################################
 
@@ -75,7 +75,7 @@ file delete axis_demux_2.v axis_mux_3.v axis_arb_mux_3.v
 cd $APS2_COMMS_REPO_PATH/deps/ComBlock/5402
 file copy -force com5402.vhd com5402.backup
 # ignore whitespace warnings - seems a little dangerous
-exec $git_cmd apply com5402_dhcp.patch --directory=deps/ComBlock/5402 --ignore-whitespace
+exec -ignorestderr $git_cmd apply com5402_dhcp.patch --directory=deps/ComBlock/5402 --ignore-whitespace
 file copy -force com5402.backup com5402.vhd
 cd $cur_dir
 
@@ -143,7 +143,7 @@ set bds [glob $REPO_PATH/src/bd/*.tcl]
 foreach bd_path $bds {
   set bd [file rootname [file tail $bd_path]]
   puts "Working on $bd"
-  source $REPO_PATH/src/bd/$bd.tcl -quiet
+  source $REPO_PATH/src/bd/$bd.tcl
   regenerate_bd_layout
   validate_bd_design -quiet
 	save_bd_design
@@ -153,10 +153,10 @@ foreach bd_path $bds {
 }
 
 #Xilinx IP
-set ip_srcs [glob $REPO_PATH/src/ip/xilinx/*.xci]
-foreach xci $ip_srcs {
-  import_ip $xci
-}
+set xcix_srcs [glob $REPO_PATH/src/ip/xilinx/*.xcix]
+add_files -norecurse $xcix_srcs
+set xci_srcs [glob $REPO_PATH/src/ip/xilinx/*.xci]
+import_ip $xci_srcs
 
 set_property top TDM_interconnect_top [current_fileset]
 update_compile_order -fileset sources_1
@@ -187,5 +187,5 @@ reset_run sata_interconnect_pcs_pma_synth_1
 set sata_interconnect_pcs_pma_ip_path [file dirname [get_files sata_interconnect_pcs_pma.xci]]
 set cur_dir [pwd]
 cd $sata_interconnect_pcs_pma_ip_path
-exec $git_cmd apply -p6 --ignore-whitespace $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.output_margins.patch $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.300MHz_IDELAYCTRL.patch
+exec -ignorestderr $git_cmd apply -p6 --ignore-whitespace $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.output_margins.patch $REPO_PATH/src/ip/xilinx/sata_interconnect_pcs_pma.300MHz_IDELAYCTRL.patch
 cd $cur_dir
