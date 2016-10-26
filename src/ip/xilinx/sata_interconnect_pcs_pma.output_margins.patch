@@ -1,7 +1,7 @@
-diff --git a/TDM-interconnect-base/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma.vhd b/TDM-interconnect/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma.vhd
-index 17c0c5b..c9d39c1 100644
---- a/TDM-interconnect-base/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma.vhd
-+++ b/TDM-interconnect/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma.vhd
+diff --git a/TDM-interconnect/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma.vhd b/TDM-interconnect-mod/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma.vhd
+index 17c0c5b..8e19b69 100644
+--- a/TDM-interconnect/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma.vhd
++++ b/TDM-interconnect-mod/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma.vhd
 @@ -148,8 +148,9 @@ entity sata_interconnect_pcs_pma is
        ---------------
        status_vector        : out std_logic_vector(15 downto 0); -- Core status.
@@ -14,10 +14,32 @@ index 17c0c5b..c9d39c1 100644
  );
  end sata_interconnect_pcs_pma;
  
-diff --git a/TDM-interconnect-base/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma_block.vhd b/TDM-interconnect/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma_block.vhd
+@@ -207,7 +208,9 @@ architecture block_level of sata_interconnect_pcs_pma is
+       ---------------
+       status_vector        : out std_logic_vector(15 downto 0); -- Core status.
+       reset                : in std_logic;                     -- Asynchronous reset for entire core.
+-      signal_detect        : in std_logic                      -- Input from PMD to indicate presence of optical input.
++      signal_detect        : in std_logic;                      -- Input from PMD to indicate presence of optical input.
++      left_margin          : out std_logic_vector(4 downto 0);
++      right_margin         : out std_logic_vector(4 downto 0)
+ 
+ );
+ end component;
+@@ -264,7 +267,9 @@ begin
+       ---------------
+       status_vector         => status_vector,
+       reset                 => reset,
+-      signal_detect         => signal_detect
++      signal_detect         => signal_detect,
++      left_margin           => left_margin,
++      right_margin          => right_margin
+ );
+ 
+ end block_level;
+diff --git a/TDM-interconnect/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma_block.vhd b/TDM-interconnect-mod/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma_block.vhd
 index fdff079..08a68a1 100644
---- a/TDM-interconnect-base/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma_block.vhd
-+++ b/TDM-interconnect/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma_block.vhd
+--- a/TDM-interconnect/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma_block.vhd
++++ b/TDM-interconnect-mod/TDM-interconnect.srcs/sources_1/ip/sata_interconnect_pcs_pma/synth/sata_interconnect_pcs_pma_block.vhd
 @@ -153,7 +153,9 @@ entity sata_interconnect_pcs_pma_block is
        ---------------
        status_vector        : out std_logic_vector(15 downto 0); -- Core status.
