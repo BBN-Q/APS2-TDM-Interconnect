@@ -164,6 +164,7 @@ update_compile_order -fileset sources_1
 add_files -fileset constrs_1 -norecurse $REPO_PATH/deps/VHDL-Components/constraints/synchronizer.tcl
 add_files -fileset constrs_1 -norecurse $REPO_PATH/constraints/pins_aps2.xdc
 add_files -fileset constrs_1 -norecurse $REPO_PATH/constraints/timing_aps2.xdc
+reorder_files -fileset constrs_1 -after $REPO_PATH/constraints/timing_aps2.xdc $REPO_PATH/deps/APS2-Comms/constraints/async_fifos.tcl
 set_property target_constrs_file $REPO_PATH/constraints/timing_aps2.xdc [current_fileset -constrset]
 
 #Enable headerless bit file output
