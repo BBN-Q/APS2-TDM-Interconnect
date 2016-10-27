@@ -30,9 +30,10 @@ signal tx_tdata_tdm : std_logic_vector(7 downto 0) := (others => '0');
 signal tx_tvalid_tdm : std_logic := '0';
 signal tx_tready_tdm : std_logic := '0';
 
-
 signal clk_user_aps2, clk_user_tdm : std_logic := '0';
 signal clk125_ref_aps2, clk125_ref_tdm : std_logic := '0';
+signal clk_625_sata, clk_208_sata, clk_104_sata, clk_125_sata : std_logic := '0';
+signal sata_mmcm_locked : std_logic;
 
 constant CLK_125MHZ_PERIOD : time := 10 ns;
 constant CLK_300MHZ_PERIOD : time := 3.333333 ns;
@@ -54,16 +55,35 @@ begin
 	link_established_tdm <= status_vector_tdm(0);
 	link_established_aps2 <= status_vector_aps2(0);
 
-	aps2_uut : entity work.APS2_SATA_interconnect
+	sata_clocks_gen_inst : entity work.SATA_interconnect_clk_gen
+		port map (
+			rst        => rst_aps2,
+			clk125_ref => clk125_ref_aps2,
+			clk300     => clk_user_aps2,
+
+			clk625 => clk_625_sata,
+			clk208 => clk_208_sata,
+			clk104 => clk_104_sata,
+			clk125 => clk_125_sata,
+
+			mmcm_locked => sata_mmcm_locked
+		);
+
+	aps2_uut : entity work.SATA_interconnect
+		generic map ( EXAMPLE_SIMULATION => 1 )
 		port map (
 		rst        => rst_aps2,
-		clk125_ref => clk125_ref_aps2,
-		clk300     => clk_user_aps2,
 
 		rx_p => twisted_pair_a_p,
 		rx_n => twisted_pair_a_n,
 		tx_p => twisted_pair_b_p,
 		tx_n => twisted_pair_b_n,
+
+		clk625   => clk_625_sata,
+		clk208   => clk_208_sata,
+		clk104   => clk_104_sata,
+		clk125   => clk_125_sata,
+		mmcm_locked => sata_mmcm_locked,
 
 		status_vector => status_vector_aps2,
 		left_margin   => left_margin_aps2,
@@ -78,16 +98,21 @@ begin
 		tx_tready => tx_tready_aps2
 	);
 
-	tdm_uut : entity work.APS2_SATA_interconnect
+	tdm_uut : entity work.SATA_interconnect
+		generic map ( EXAMPLE_SIMULATION => 1 )
 		port map (
 		rst        => rst_tdm,
-		clk125_ref => clk125_ref_tdm,
-		clk300     => clk_user_aps2,
 
 		rx_p   => twisted_pair_b_p,
 		rx_n   => twisted_pair_b_n,
 		tx_p   => twisted_pair_a_p,
 		tx_n   => twisted_pair_a_n,
+
+		clk625   => clk_625_sata,
+		clk208   => clk_208_sata,
+		clk104   => clk_104_sata,
+		clk125   => clk_125_sata,
+		mmcm_locked => sata_mmcm_locked,
 
 		status_vector => status_vector_tdm,
 		left_margin   => left_margin_tdm,
@@ -103,7 +128,6 @@ begin
 	);
 
 
-
   stimulus: process
   begin
 
@@ -115,7 +139,6 @@ begin
 		rst_aps2 <= '0';
 
 		wait until link_established_aps2 = '1' and link_established_tdm = '1';
-
 
 		for ct in 1 to 4 loop
 			wait until rising_edge(clk_user_tdm);

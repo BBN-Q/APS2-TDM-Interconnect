@@ -133,9 +133,6 @@ add_files -norecurse $REPO_PATH/deps/APS2-Comms/src/com5402_wrapper_pkg.vhd
 add_files -fileset sources_1 -norecurse $REPO_PATH/deps/verilog-axis/rtl/axis_async_fifo.v
 remove_files $REPO_PATH/src/TDM_interconnect_top.vhd
 
-# Additional constraints
-add_files -fileset constrs_1 -norecurse $APS2_COMMS_REPO_PATH/constraints/async_fifos.tcl
-
 # Block designs
 set bds [glob $REPO_PATH/src/bd/*.tcl]
 
@@ -164,8 +161,13 @@ update_compile_order -fileset sources_1
 add_files -fileset constrs_1 -norecurse $REPO_PATH/deps/VHDL-Components/constraints/synchronizer.tcl
 add_files -fileset constrs_1 -norecurse $REPO_PATH/constraints/pins_aps2.xdc
 add_files -fileset constrs_1 -norecurse $REPO_PATH/constraints/timing_aps2.xdc
-reorder_files -fileset constrs_1 -after $REPO_PATH/constraints/timing_aps2.xdc $REPO_PATH/deps/APS2-Comms/constraints/async_fifos.tcl
+add_files -fileset constrs_1 -norecurse $APS2_COMMS_REPO_PATH/constraints/async_fifos.tcl
 set_property target_constrs_file $REPO_PATH/constraints/timing_aps2.xdc [current_fileset -constrset]
+
+add_files -fileset sim_1 -norecurse $REPO_PATH/test/SATA_interconnect_tb.vhd
+set_property used_in_simulation false [get_files $REPO_PATH/src/APS2_interconnect_top.vhd]
+set_property used_in_simulation false [get_files {ethernet_comms_bd.bd cfg_clk_mmcm.xci ref_clk_mmcm.xci}]
+update_compile_order -fileset sim_1
 
 #Enable headerless bit file output
 set_property STEPS.WRITE_BITSTREAM.ARGS.BIN_FILE true [get_runs impl_1]

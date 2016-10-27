@@ -13,6 +13,9 @@ use ieee.numeric_std.all;
 use work.verilog_axis_pkg.axis_async_fifo;
 
 entity SATA_interconnect is
+	generic (
+		EXAMPLE_SIMULATION : integer := 0
+	);
 	port (
 		rst        : in std_logic;
 
@@ -216,6 +219,7 @@ architecture arch of SATA_interconnect is
 
 -- instantiate the pcs/pma core
 pcs_pma_core_inst : entity work.sata_interconnect_pcs_pma
+	generic map ( EXAMPLE_SIMULATION => EXAMPLE_SIMULATION )
 	port map (
 		txn                  => tx_n,
 		txp                  => tx_p,
