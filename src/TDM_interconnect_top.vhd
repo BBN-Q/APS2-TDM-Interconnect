@@ -48,7 +48,6 @@ architecture arch of TDM_interconnect_top is
 	constant MAC_ADDR                     : std_logic_vector(47 downto 0) := x"461ddb445566";
 	constant SUBNET_MASK                  : std_logic_vector(31 downto 0) := x"ffffff00"; -- 255.255.255.0
 	constant TCP_PORT                     : std_logic_vector(15 downto 0) := x"bb4e"; -- BBN
-	constant UDP_PORT                     : std_logic_vector(15 downto 0) := x"bb4f"; -- BBN + 1
 	constant GATEWAY_IP_ADDR              : std_logic_vector(31 downto 0) := x"c0a80201"; -- TODO: what this should be?
 	constant PCS_PMA_AN_ADV_CONFIG_VECTOR : std_logic_vector(15 downto 0) := x"0020"; --full-duplex see Table 2-55 (pg. 74) of PG047 November 18, 2015
 	constant PCS_PMA_CONFIGURATION_VECTOR : std_logic_vector(4 downto 0) := b"10000"; --auto-negotiation enabled see Table 2-54 (pg. 73) of PG047 November 18, 2015
