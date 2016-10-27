@@ -57,7 +57,8 @@ architecture arch of APS2_interconnect_top is
 	constant PCS_PMA_CONFIGURATION_VECTOR : std_logic_vector(4 downto 0) := b"10000"; --auto-negotiation enabled see Table 2-54 (pg. 73) of PG047 November 18, 2015
 
 	signal clk_125MHz_ref, clk_125MHz_data, clk_125MHz_mac, clk_200MHz, clk_300MHz : std_logic;
-	signal ref_clk_locked, cfg_clk_locked : std_logic;
+	signal ref_clk_locked, cfg_clk_locked, sata_mmcm_locked : std_logic;
+	signal clk_625_sata, clk_208_sata, clk_104_sata, clk_125_sata : std_logic;
 
 	signal rst_comblock, rst_eth_mac_rx_tx, rst_eth_mac_logic, rst_pcs_pma, rst_sata : std_logic := '0';
 	signal rst_sync_clk125MHz_mac, rst_sync_clk125MHz_data : std_logic := '0';
@@ -113,6 +114,21 @@ begin
 		resetn     => fpga_resetl,
 		locked     => cfg_clk_locked
 	);
+
+	-- these clocks are named after the nominal 1Gbit rate clock frequencies
+	sata_clocks_gen_inst : entity work.SATA_interconnect_clk_gen
+		port map (
+			rst        => rst_sata,
+			clk125_ref => clk_125MHz_ref,
+			clk300     => clk_300MHz,
+
+			clk625 => clk_625_sata,
+			clk208 => clk_208_sata,
+			clk104 => clk_104_sata,
+			clk125 => clk_125_sata,
+
+			mmcm_locked => sata_mmcm_locked
+		);
 
 		--------------------  Resets  --------------------------
 	--Disable SFP when not present
@@ -206,29 +222,33 @@ begin
 
 		);
 
-	SATA_interconnect_inst : entity work.APS2_SATA_interconnect
+	SATA_interconnect_inst : entity work.SATA_interconnect
 		port map (
-			rst => rst_sata,
-			clk125_ref => clk_125MHz_ref,
-			clk300     => clk_300MHz,
+			rst        => rst_sata,
 
 			rx_p => sata_clk_p(1),
 			rx_n => sata_clk_n(1),
 			tx_p => sata_data_p(1),
 			tx_n => sata_data_n(1),
 
-			status_vector => status_vector_sata,
-			left_margin => left_margin,
-			right_margin => right_margin,
+			clk625   => clk_625_sata,
+			clk208   => clk_208_sata,
+			clk104   => clk_104_sata,
+			clk125   => clk_125_sata,
+			mmcm_locked => sata_mmcm_locked,
 
-			clk_user    => clk_125MHz_data,
-			rx_tdata    => tcp_tx_tdata,
-			rx_tvalid   => tcp_tx_tvalid,
-			rx_tready   => tcp_tx_tready,
-			tx_tdata    => tcp_rx_tdata,
-			tx_tvalid   => tcp_rx_tvalid,
-			tx_tready   => tcp_rx_tready
-	);
+			status_vector => status_vector_sata,
+			left_margin   => left_margin,
+			right_margin  => right_margin,
+
+			clk_user  => clk_125MHz_data,
+			rx_tdata  => tcp_tx_tdata,
+			rx_tvalid => tcp_tx_tvalid,
+			rx_tready => tcp_tx_tready,
+			tx_tdata  => tcp_rx_tdata,
+			tx_tvalid => tcp_rx_tvalid,
+			tx_tready => tcp_rx_tready
+		);
 
 	-- Avoid DRC error from not terminating sata_clk_p/n(0) and sata_data_p/n(0)
 	sata_clk_0_buf: IBUFDS

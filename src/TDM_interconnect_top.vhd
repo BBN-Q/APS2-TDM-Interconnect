@@ -54,11 +54,8 @@ architecture arch of TDM_interconnect_top is
 	constant PCS_PMA_CONFIGURATION_VECTOR : std_logic_vector(4 downto 0) := b"10000"; --auto-negotiation enabled see Table 2-54 (pg. 73) of PG047 November 18, 2015
 
 	signal clk_125MHz_ref, clk_125MHz_data, clk_125MHz_mac, clk_200MHz, clk_300MHz : std_logic;
-	signal ref_clk_locked, cfg_clk_locked : std_logic;
-
-	-- clocks from the MMCM for the sata interface
+	signal ref_clk_locked, cfg_clk_locked, sata_mmcm_locked : std_logic;
 	signal clk_625_sata, clk_208_sata, clk_104_sata, clk_125_sata : std_logic;
-	signal mmcm_locked : std_logic := '0';
 
 	signal rst_comblock, rst_eth_mac_rx_tx, rst_eth_mac_logic, rst_pcs_pma, rst_sata : std_logic := '0';
 	signal rst_sync_clk125MHz_mac, rst_sync_clk125MHz_data : std_logic := '0';
@@ -111,58 +108,20 @@ begin
 		locked     => cfg_clk_locked
 	);
 
-	--generate all SATA clocks from the same MMCM
+	-- share SATA clocks from the same MMCM
 	clocks_gen_inst : entity work.SATA_interconnect_clk_gen
 		port map (
 			rst        => rst_sata,
 			clk125_ref => clk_125MHz_ref,
 			clk300     => clk_300MHz,
 
-			clk625   => clk_625_sata,
-			clk208   => clk_208_sata,
-			clk104   => clk_104_sata,
-			clk125   => clk_125_sata,
+			clk625 => clk_625_sata,
+			clk208 => clk_208_sata,
+			clk104 => clk_104_sata,
+			clk125 => clk_125_sata,
 
-			mmcm_locked =>  mmcm_locked
+			mmcm_locked => sata_mmcm_locked
 		);
-
-		--generate SATA interconnect for each of the TDM SATA ports
-	  tdm_sata_gen : for i in 0 to 8 generate
-			-- Slice out the link established bit from the status array
-			link_established_sata(i) <= sata_pcs_pma_status_array(i)(0);
-
-			-- Handle the SATA connection
-			SATA_interconnect_inst : entity work.TDM_SATA_interconnect
-				port map (
-					rst        => rst_sata,
-					clk125_ref => clk_125MHz_ref,
-					clk300     => clk_300MHz,
-
-					rx_p => sata_dat_p(i),
-					rx_n => sata_dat_n(i),
-					tx_p => sata_clk_p(i),
-					tx_n => sata_clk_n(i),
-
-					status_vector => sata_pcs_pma_status_array(i),
-					left_margin   => left_margin(i),
-					right_margin  => right_margin(i),
-
-					mmcm_locked => mmcm_locked,
-
-					clk625   => clk_625_sata,
-					clk208   => clk_208_sata,
-					clk104   => clk_104_sata,
-					clk125   => clk_125_sata,
-
-					clk_user    => clk_125MHz_data,
-					rx_tdata    => tcp_tx_tdata(i),
-					rx_tvalid   => tcp_tx_tvalid(i),
-					rx_tready   => tcp_tx_tready(i),
-					tx_tdata    => tcp_rx_tdata(i),
-					tx_tvalid   => tcp_rx_tvalid(i),
-					tx_tready   => open
-			);
-		end generate;
 
 	--------------------  Resets  --------------------------
 	--Disable SFP when not present
@@ -256,7 +215,40 @@ begin
 			tcp_tx_tdata  => tcp_tx_tdata(0),
 			tcp_tx_tready => tcp_tx_tready(0),
 			tcp_tx_tvalid => tcp_tx_tvalid(0)
-
 		);
+
+	--generate SATA interconnect for each of the TDM SATA ports
+	tdm_sata_gen : for i in 0 to 8 generate
+		-- Slice out the link established bit from the status array
+		link_established_sata(i) <= sata_pcs_pma_status_array(i)(0);
+
+		SATA_interconnect_inst : entity work.SATA_interconnect
+			port map (
+				rst        => rst_sata,
+
+				rx_p => sata_dat_p(i),
+				rx_n => sata_dat_n(i),
+				tx_p => sata_clk_p(i),
+				tx_n => sata_clk_n(i),
+				mmcm_locked => sata_mmcm_locked,
+
+				clk625   => clk_625_sata,
+				clk208   => clk_208_sata,
+				clk104   => clk_104_sata,
+				clk125   => clk_125_sata,
+
+				status_vector => sata_pcs_pma_status_array(i),
+				left_margin   => left_margin(i),
+				right_margin  => right_margin(i),
+
+				clk_user  => clk_125MHz_data,
+				rx_tdata  => tcp_tx_tdata(i),
+				rx_tvalid => tcp_tx_tvalid(i),
+				rx_tready => tcp_tx_tready(i),
+				tx_tdata  => tcp_rx_tdata(i),
+				tx_tvalid => tcp_rx_tvalid(i),
+				tx_tready => open
+			);
+	end generate;
 
 end architecture;

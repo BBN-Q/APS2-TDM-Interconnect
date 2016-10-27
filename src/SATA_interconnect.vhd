@@ -1,7 +1,9 @@
--- Wrap the SATA interconnect from the APS2 side
--- On the APS2 wrapper we generate all necessary clocks with an MMCM
+-- SATA interconnect for two-way communications
 --
--- Original author: Graham Rowlands
+-- Use Xilnx PCS/PMA core as PHY layer
+-- Lightweight framer/deframer based off of 0x55 preamble and 0xD5 start-of-frame
+--
+-- Original authors: Colm Ryan and Graham Rowlands
 -- Copyright 2016 Raytheon BBN Technologies
 
 library ieee;
@@ -10,32 +12,28 @@ use ieee.numeric_std.all;
 
 use work.verilog_axis_pkg.axis_async_fifo;
 
-entity TDM_SATA_interconnect is
+entity SATA_interconnect is
 	port (
 		rst        : in std_logic;
-		clk125_ref : in std_logic;
-		clk300     : in std_logic;
 
 		--SATA tx/rx twisted pairs
-		rx_p      : in std_logic;
-		rx_n      : in std_logic;
-		tx_p      : out std_logic;
-		tx_n      : out std_logic;
+		rx_p : in std_logic;
+		rx_n : in std_logic;
+		tx_p : out std_logic;
+		tx_n : out std_logic;
 
-    --clocks from top level module
-    --we share a global MMCM to conserve those resources
-    clk625 : in std_logic;
-    clk208 : in std_logic;
-    clk104 : in std_logic;
-    clk125 : in std_logic;
+		-- clocks for PCS/PMA core
+		-- these are nominal 1Gbit clock frequencies
+		clk625      : in std_logic;
+		clk208      : in std_logic;
+		clk104      : in std_logic;
+		clk125      : in std_logic;
+		mmcm_locked : in std_logic;
 
 		--status
-		status_vector    : out std_logic_vector(15 downto 0);
-		left_margin      : out std_logic_vector(4 downto 0);
-		right_margin     : out std_logic_vector(4 downto 0);
-
-		--are we locked?
-		mmcm_locked : in std_logic;
+		status_vector : out std_logic_vector(15 downto 0);
+		left_margin   : out std_logic_vector(4 downto 0);
+		right_margin  : out std_logic_vector(4 downto 0);
 
 		--user data interface
 		clk_user  : in std_logic;
@@ -49,7 +47,7 @@ entity TDM_SATA_interconnect is
 	);
 end entity;
 
-architecture arch of TDM_SATA_interconnect is
+architecture arch of SATA_interconnect is
 
   signal rst_clk125 : std_logic;
 
@@ -62,10 +60,6 @@ architecture arch of TDM_SATA_interconnect is
   signal gmii_rxd   : std_logic_vector(7 downto 0) := (others => '0');
   signal gmii_rx_dv : std_logic := '0';
   signal gmii_rx_er : std_logic := '0';
-
-  signal sgmii_clk_r  : std_logic := '0';
-  signal sgmii_clk_f  : std_logic := '0';
-  signal sgmii_clk_en : std_logic := '0';
 
   type tx_framer_state_t is (IDLE, ADD_PREAMBLE, ADD_SFD, PASSTHROUGH);
   signal tx_framer_state : tx_framer_state_t := IDLE;
@@ -81,7 +75,6 @@ architecture arch of TDM_SATA_interconnect is
 	reset_synchronizer_clk125 : entity work.synchronizer
 	generic map(RESET_VALUE => '1', NUM_FLIP_FLOPS => 3)
 	port map(rst => rst, clk => clk125, data_in => '0', data_out => rst_clk125);
-
 
 	--------------------------------------------------------------------------------
 	-- add preamble and start-of-frame to output going signals
@@ -221,7 +214,6 @@ architecture arch of TDM_SATA_interconnect is
 		output_axis_tuser  => open
 	);
 
-
 -- instantiate the pcs/pma core
 pcs_pma_core_inst : entity work.sata_interconnect_pcs_pma
 	port map (
@@ -231,9 +223,9 @@ pcs_pma_core_inst : entity work.sata_interconnect_pcs_pma
 		rxp                  => rx_p,
 		clk125m              => clk125,
 		mmcm_locked          => mmcm_locked,
-		sgmii_clk_r          => sgmii_clk_r,
-		sgmii_clk_f          => sgmii_clk_f,
-		sgmii_clk_en         => sgmii_clk_en,
+		sgmii_clk_r          => open,
+		sgmii_clk_f          => open,
+		sgmii_clk_en         => open,
 		clk625               => clk625,
 		clk208               => clk208,
 		clk104               => clk104,
