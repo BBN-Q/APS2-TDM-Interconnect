@@ -193,7 +193,6 @@ CONFIG.ASSOCIATED_RESET {rst_eth_mac_rx_tx} \
  ] $clk_125MHz_mac
   set clk_ref_200MHz [ create_bd_port -dir I -type clk clk_ref_200MHz ]
   set gateway_ip_addr [ create_bd_port -dir I -from 31 -to 0 gateway_ip_addr ]
-  set ifg_delay [ create_bd_port -dir I -from 7 -to 0 ifg_delay ]
   set mac_addr [ create_bd_port -dir I -from 47 -to 0 mac_addr ]
   set mgt_clk_locked [ create_bd_port -dir O mgt_clk_locked ]
   set pcs_pma_an_adv_config_vector [ create_bd_port -dir I -from 15 -to 0 pcs_pma_an_adv_config_vector ]
@@ -270,7 +269,6 @@ CONFIG.SupportLevel {Include_Shared_Logic_in_Core} \
   connect_bd_net -net gig_ethernet_pcs_pma_0_mmcm_locked_out [get_bd_ports mgt_clk_locked] [get_bd_pins gig_ethernet_pcs_pma_0/mmcm_locked_out]
   connect_bd_net -net gig_ethernet_pcs_pma_0_status_vector [get_bd_ports pcs_pma_status_vector] [get_bd_pins gig_ethernet_pcs_pma_0/status_vector]
   connect_bd_net -net gig_ethernet_pcs_pma_0_userclk2_out [get_bd_ports clk_125MHz_mac] [get_bd_pins eth_mac_1g_fifo_wrapper_0/rx_clk] [get_bd_pins eth_mac_1g_fifo_wrapper_0/tx_clk] [get_bd_pins gig_ethernet_pcs_pma_0/userclk2_out]
-  connect_bd_net -net ifg_delay_1 [get_bd_ports ifg_delay] [get_bd_pins eth_mac_1g_fifo_wrapper_0/ifg_delay]
   connect_bd_net -net independent_clock_bufg_1 [get_bd_ports clk_ref_200MHz] [get_bd_pins gig_ethernet_pcs_pma_0/independent_clock_bufg]
   connect_bd_net -net logic_rst_1 [get_bd_ports rst_eth_mac_rx_tx] [get_bd_pins eth_mac_1g_fifo_wrapper_0/rx_rst] [get_bd_pins eth_mac_1g_fifo_wrapper_0/tx_rst]
   connect_bd_net -net logic_rst_2 [get_bd_ports rst_eth_mac_logic] [get_bd_pins eth_mac_1g_fifo_wrapper_0/logic_rst]
@@ -289,59 +287,57 @@ CONFIG.SupportLevel {Include_Shared_Logic_in_Core} \
    DisplayTieOff: "1",
    guistr: "# # String gsaved with Nlview 6.6.5b  2016-09-06 bk=1.3687 VDI=39 GEI=35 GUI=JA:1.6
 #  -string -flagsOSRD
-preplace port sfp_mgt_clk -pg 1 -y 170 -defaultsOSRD
-preplace port tcp_rx -pg 1 -y 670 -defaultsOSRD
-preplace port clk_ref_200MHz -pg 1 -y 190 -defaultsOSRD
-preplace port mgt_clk_locked -pg 1 -y 220 -defaultsOSRD
-preplace port rst_eth_mac_logic -pg 1 -y 450 -defaultsOSRD
-preplace port clk_125MHz -pg 1 -y 430 -defaultsOSRD
-preplace port rst_eth_mac_rx_tx -pg 1 -y 390 -defaultsOSRD
-preplace port rst_pcs_pma -pg 1 -y 270 -defaultsOSRD
-preplace port clk_125MHz_mac -pg 1 -y 120 -defaultsOSRD
-preplace port sfp -pg 1 -y 40 -defaultsOSRD
-preplace port tcp_rst -pg 1 -y 660 -defaultsOSRD
+preplace port sfp_mgt_clk -pg 1 -y 180 -defaultsOSRD
+preplace port tcp_rx -pg 1 -y 680 -defaultsOSRD
+preplace port clk_ref_200MHz -pg 1 -y 200 -defaultsOSRD
+preplace port mgt_clk_locked -pg 1 -y 230 -defaultsOSRD
+preplace port rst_eth_mac_logic -pg 1 -y 460 -defaultsOSRD
+preplace port clk_125MHz -pg 1 -y 630 -defaultsOSRD
+preplace port rst_eth_mac_rx_tx -pg 1 -y 400 -defaultsOSRD
+preplace port rst_pcs_pma -pg 1 -y 260 -defaultsOSRD
+preplace port clk_125MHz_mac -pg 1 -y 460 -defaultsOSRD
+preplace port sfp -pg 1 -y 50 -defaultsOSRD
+preplace port tcp_rst -pg 1 -y 670 -defaultsOSRD
 preplace port pcs_pma_an_restart_config -pg 1 -y 250 -defaultsOSRD
-preplace port tcp_tx -pg 1 -y 580 -defaultsOSRD
-preplace port rst_comblock -pg 1 -y 640 -defaultsOSRD
-preplace portBus ifg_delay -pg 1 -y 470 -defaultsOSRD
-preplace portBus mac_addr -pg 1 -y 680 -defaultsOSRD
-preplace portBus gateway_ip_addr -pg 1 -y 740 -defaultsOSRD
-preplace portBus pcs_pma_status_vector -pg 1 -y 280 -defaultsOSRD
-preplace portBus tcp_port -pg 1 -y 860 -defaultsOSRD
-preplace portBus subnet_mask -pg 1 -y 720 -defaultsOSRD
-preplace portBus pcs_pma_configuration_vector -pg 1 -y 210 -defaultsOSRD
-preplace portBus pcs_pma_an_adv_config_vector -pg 1 -y 230 -defaultsOSRD
-preplace portBus IPv4_addr -pg 1 -y 700 -defaultsOSRD
-preplace inst com5402_wrapper_0 -pg 1 -lvl 2 -y 710 -defaultsOSRD
-preplace inst eth_mac_1g_fifo_wrapper_0 -pg 1 -lvl 1 -y 420 -defaultsOSRD
-preplace inst gig_ethernet_pcs_pma_0 -pg 1 -lvl 2 -y 220 -defaultsOSRD
+preplace port tcp_tx -pg 1 -y 600 -defaultsOSRD
+preplace port rst_comblock -pg 1 -y 650 -defaultsOSRD
+preplace portBus mac_addr -pg 1 -y 690 -defaultsOSRD
+preplace portBus gateway_ip_addr -pg 1 -y 750 -defaultsOSRD
+preplace portBus pcs_pma_status_vector -pg 1 -y 290 -defaultsOSRD
+preplace portBus tcp_port -pg 1 -y 870 -defaultsOSRD
+preplace portBus subnet_mask -pg 1 -y 730 -defaultsOSRD
+preplace portBus pcs_pma_configuration_vector -pg 1 -y 220 -defaultsOSRD
+preplace portBus pcs_pma_an_adv_config_vector -pg 1 -y 240 -defaultsOSRD
+preplace portBus IPv4_addr -pg 1 -y 710 -defaultsOSRD
+preplace inst com5402_wrapper_0 -pg 1 -lvl 2 -y 720 -defaultsOSRD
+preplace inst eth_mac_1g_fifo_wrapper_0 -pg 1 -lvl 1 -y 430 -defaultsOSRD
+preplace inst gig_ethernet_pcs_pma_0 -pg 1 -lvl 2 -y 230 -defaultsOSRD
 preplace netloc gig_ethernet_pcs_pma_0_sfp 1 2 1 NJ
-preplace netloc ifg_delay_1 1 0 1 NJ
-preplace netloc eth_mac_1g_fifo_wrapper_0_gmii 1 1 1 340
-preplace netloc com5402_wrapper_0_mac_tx 1 0 3 20 580 350J 510 760
-preplace netloc independent_clock_bufg_1 1 0 2 NJ 190 NJ
-preplace netloc IPv4_addr_1 1 0 2 NJ 700 NJ
-preplace netloc rst_1 1 0 2 NJ 640 NJ
-preplace netloc an_adv_config_vector_1 1 0 2 NJ 230 NJ
-preplace netloc tcp_tx_1 1 0 2 0J 590 360J
-preplace netloc mac_addr_1 1 0 2 NJ 680 NJ
-preplace netloc logic_rst_1 1 0 1 10
-preplace netloc configuration_vector_1 1 0 2 NJ 210 NJ
+preplace netloc eth_mac_1g_fifo_wrapper_0_gmii 1 1 1 370
+preplace netloc com5402_wrapper_0_mac_tx 1 0 3 30 590 380J 520 790
+preplace netloc independent_clock_bufg_1 1 0 2 NJ 200 NJ
+preplace netloc IPv4_addr_1 1 0 2 NJ 710 NJ
+preplace netloc rst_1 1 0 2 NJ 650 NJ
+preplace netloc an_adv_config_vector_1 1 0 2 NJ 240 NJ
+preplace netloc tcp_tx_1 1 0 2 NJ 600 390J
+preplace netloc mac_addr_1 1 0 2 NJ 690 NJ
+preplace netloc logic_rst_1 1 0 1 20
+preplace netloc configuration_vector_1 1 0 2 NJ 220 NJ
 preplace netloc logic_rst_2 1 0 1 NJ
-preplace netloc gig_ethernet_pcs_pma_0_userclk2_out 1 1 2 360 450 760
-preplace netloc an_restart_config_1 1 0 2 10J 240 360J
-preplace netloc gtrefclk_in_1 1 0 2 NJ 170 NJ
+preplace netloc gig_ethernet_pcs_pma_0_userclk2_out 1 1 2 390 460 790
+preplace netloc an_restart_config_1 1 0 2 NJ 250 390J
+preplace netloc gtrefclk_in_1 1 0 2 NJ 180 NJ
 preplace netloc com5402_wrapper_0_tcp_rx 1 2 1 NJ
-preplace netloc tcp_rst_1 1 0 2 NJ 660 NJ
-preplace netloc tcp_port_1 1 0 2 NJ 860 NJ
-preplace netloc rx_clk_1 1 0 2 10 620 NJ
-preplace netloc subnet_mask_1 1 0 2 NJ 720 NJ
+preplace netloc tcp_rst_1 1 0 2 NJ 670 NJ
+preplace netloc tcp_port_1 1 0 2 NJ 870 NJ
+preplace netloc rx_clk_1 1 0 2 20 630 NJ
+preplace netloc subnet_mask_1 1 0 2 NJ 730 NJ
 preplace netloc gig_ethernet_pcs_pma_0_mmcm_locked_out 1 2 1 NJ
-preplace netloc reset_1 1 0 2 20J 250 350J
+preplace netloc reset_1 1 0 2 NJ 260 380J
 preplace netloc gig_ethernet_pcs_pma_0_status_vector 1 2 1 NJ
-preplace netloc gateway_ip_addr_1 1 0 2 NJ 740 NJ
-preplace netloc eth_mac_1g_fifo_wrapper_0_rx_axis 1 1 1 340
-levelinfo -pg 1 -20 180 560 780 -top -10 -bot 920
+preplace netloc gateway_ip_addr_1 1 0 2 NJ 750 NJ
+preplace netloc eth_mac_1g_fifo_wrapper_0_rx_axis 1 1 1 370
+levelinfo -pg 1 0 210 590 810 -top 0 -bot 930
 ",
 }
 

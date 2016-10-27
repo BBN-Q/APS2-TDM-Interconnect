@@ -50,7 +50,6 @@ architecture arch of TDM_interconnect_top is
 	constant TCP_PORT                     : std_logic_vector(15 downto 0) := x"bb4e"; -- BBN
 	constant UDP_PORT                     : std_logic_vector(15 downto 0) := x"bb4f"; -- BBN + 1
 	constant GATEWAY_IP_ADDR              : std_logic_vector(31 downto 0) := x"c0a80201"; -- TODO: what this should be?
-	constant IFG_DELAY                    : std_logic_vector(7 downto 0) := x"0c"; --interframe gap of 12 -standard is 96 bits (12 bytes) see https://en.wikipedia.org/wiki/Interpacket_gap
 	constant PCS_PMA_AN_ADV_CONFIG_VECTOR : std_logic_vector(15 downto 0) := x"0020"; --full-duplex see Table 2-55 (pg. 74) of PG047 November 18, 2015
 	constant PCS_PMA_CONFIGURATION_VECTOR : std_logic_vector(4 downto 0) := b"10000"; --auto-negotiation enabled see Table 2-54 (pg. 73) of PG047 November 18, 2015
 
@@ -222,7 +221,6 @@ begin
 			IPv4_addr                    => IPV4_ADDR,
 			mac_addr                     => MAC_ADDR,
 			gateway_ip_addr              => GATEWAY_IP_ADDR,
-			ifg_delay                    => IFG_DELAY,
 			subnet_mask                  => SUBNET_MASK,
 			tcp_port                     => TCP_PORT,
 			pcs_pma_an_adv_config_vector => PCS_PMA_AN_ADV_CONFIG_VECTOR,
