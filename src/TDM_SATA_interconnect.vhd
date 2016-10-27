@@ -34,6 +34,9 @@ entity TDM_SATA_interconnect is
 		left_margin      : out std_logic_vector(4 downto 0);
 		right_margin     : out std_logic_vector(4 downto 0);
 
+		--are we locked?
+		mmcm_locked : in std_logic;
+
 		--user data interface
 		clk_user  : in std_logic;
 		rx_tdata  : out std_logic_vector(7 downto 0);
@@ -59,8 +62,6 @@ architecture arch of TDM_SATA_interconnect is
   signal gmii_rxd   : std_logic_vector(7 downto 0) := (others => '0');
   signal gmii_rx_dv : std_logic := '0';
   signal gmii_rx_er : std_logic := '0';
-
-  signal mmcm_locked : std_logic := '0';
 
   signal sgmii_clk_r  : std_logic := '0';
   signal sgmii_clk_f  : std_logic := '0';

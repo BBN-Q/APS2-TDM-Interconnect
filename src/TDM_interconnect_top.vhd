@@ -148,6 +148,8 @@ begin
 					left_margin   => left_margin(i),
 					right_margin  => right_margin(i),
 
+					mmcm_locked => mmcm_locked,
+
 					clk625   => clk_625_sata,
 					clk208   => clk_208_sata,
 					clk104   => clk_104_sata,
