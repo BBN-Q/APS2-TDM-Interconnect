@@ -219,7 +219,10 @@ architecture arch of SATA_interconnect is
 
 -- instantiate the pcs/pma core
 pcs_pma_core_inst : entity work.sata_interconnect_pcs_pma
+	-- work around Vivado synthesis elaboration not seeing the generic
+	--pragma synthesis_off
 	generic map ( EXAMPLE_SIMULATION => EXAMPLE_SIMULATION )
+	--pragma synthesis_on
 	port map (
 		txn                  => tx_n,
 		txp                  => tx_p,
