@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_misc.and_reduce; --just use and in vhdl-2008
 
 entity TDM_interconnect_top is
 	port (
@@ -44,7 +45,7 @@ end entity;
 architecture arch of TDM_interconnect_top is
 
 	--- Constants ---
-	constant IPV4_ADDR                    : std_logic_vector(31 downto 0) := x"c0a802c9"; -- 192.168.2.200
+	constant IPV4_ADDR                    : std_logic_vector(31 downto 0) := x"c0a802c9"; -- 192.168.2.201
 	constant MAC_ADDR                     : std_logic_vector(47 downto 0) := x"461ddb445566";
 	constant SUBNET_MASK                  : std_logic_vector(31 downto 0) := x"ffffff00"; -- 255.255.255.0
 	constant TCP_PORT                     : std_logic_vector(15 downto 0) := x"bb4e"; -- BBN
@@ -66,19 +67,18 @@ architecture arch of TDM_interconnect_top is
 	signal mgt_clk_locked : std_logic;
 
 	type BYTE_ARRAY is array (natural range <>) of std_logic_vector(7 downto 0);
-	signal tcp_rx_tdata : BYTE_ARRAY(8 downto 0);
-	signal tcp_rx_tvalid : std_logic_vector(8 downto 0) := (others => '0');
-	signal tcp_rx_tready : std_logic_vector(8 downto 0) := (others => '1');
 	signal tcp_tx_tdata : BYTE_ARRAY(8 downto 0);
 	signal tcp_tx_tvalid, tcp_tx_tready : std_logic_vector(8 downto 0) := (others => '0');
+
+	signal tcp_rx_tdata      : std_logic_vector(7 downto 0);
+	signal tcp_rx_tready     : std_logic := '0';
+	signal tcp_rx_tready_int : std_logic_vector(8 downto 0) := (others => '1');
+	signal tcp_rx_tvalid, tcp_rx_tvalid_int : std_logic := '0';
 
 	type FIVE_BIT_ARRAY is array (natural range <>) of std_logic_vector(4 downto 0);
 	signal link_established_sata : std_logic_vector(8 downto 0);
 	signal left_margin, right_margin : FIVE_BIT_ARRAY(8 downto 0);
 
-	signal tcp_rx_tdata_internal  : std_logic_vector(7 downto 0);
-	signal tcp_rx_tready_internal : std_logic := '0';
-	signal tcp_rx_tvalid_internal : std_logic := '0';
 begin
 
 	-- Tie 125MHz data clock to reference clock
@@ -167,12 +167,6 @@ begin
 	dbg(5 downto 4) <= "01" when link_established_sata(0) = '1' else "10";
 	dbg(3 downto 0) <= (others => '0');
 
-	sata_broadcast: for i in 0 to 8 generate
-	  tcp_rx_tdata(i)  <= tcp_rx_tdata_internal;
-		tcp_rx_tready(i) <= tcp_rx_tready_internal;
-		tcp_rx_tvalid(i) <= tcp_rx_tvalid_internal;
-	end generate;
-
 	ethernet_comms_bd_inst : entity work.ethernet_comms_bd
 		port map (
 			--configuration constants
@@ -207,14 +201,20 @@ begin
 			sfp_txn                   => sfp_txn,
 			sfp_txp                   => sfp_txp,
 
-			tcp_rx_tdata  => tcp_rx_tdata_internal,
-			tcp_rx_tready => tcp_rx_tready_internal,
-			tcp_rx_tvalid => tcp_rx_tvalid_internal,
+			tcp_rx_tdata  => tcp_rx_tdata,
+			tcp_rx_tready => tcp_rx_tready,
+			tcp_rx_tvalid => tcp_rx_tvalid,
 
 			tcp_tx_tdata  => tcp_tx_tdata(0),
 			tcp_tx_tready => tcp_tx_tready(0),
 			tcp_tx_tvalid => tcp_tx_tvalid(0)
 		);
+
+		-- all SATA interfaces have to be able to take data
+		tcp_rx_tready <= and_reduce(tcp_rx_tready_int);
+
+		-- mask out valid when any SATA interface deasserts tready
+		tcp_rx_tvalid_int <= tcp_rx_tvalid when tcp_rx_tready = '1' else '0';
 
 	--generate SATA interconnect for each of the TDM SATA ports
 	tdm_sata_gen : for i in 0 to 8 generate
@@ -244,9 +244,9 @@ begin
 				rx_tdata  => tcp_tx_tdata(i),
 				rx_tvalid => tcp_tx_tvalid(i),
 				rx_tready => tcp_tx_tready(i),
-				tx_tdata  => tcp_rx_tdata(i),
-				tx_tvalid => tcp_rx_tvalid(i),
-				tx_tready => open
+				tx_tdata  => tcp_rx_tdata,
+				tx_tvalid => tcp_rx_tvalid_int,
+				tx_tready => tcp_rx_tready_int(i)
 			);
 	end generate;
 
